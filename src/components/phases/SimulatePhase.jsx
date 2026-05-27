@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import SquareBuilder from '../simulations/SquareBuilder';
 import ShapeSpotter from '../simulations/ShapeSpotter';
 import ShapeSorter from '../simulations/ShapeSorter';
-import SquareMeasurer from '../simulations/SquareMeasurer';
 
 export default function SimulatePhase() {
   const { advance } = usePhase();
@@ -21,7 +20,6 @@ export default function SimulatePhase() {
     { id: 1, label: 'Build It' },
     { id: 2, label: 'Spot It' },
     { id: 3, label: 'Sort It' },
-    { id: 4, label: 'Measure It' },
   ];
 
   return (
@@ -86,18 +84,6 @@ export default function SimulatePhase() {
               <h2 className="station-header">Sandbox 3: Sort the shapes!</h2>
               <ShapeSorter onComplete={() => handleStationComplete(3)} />
               {completed.includes(3) && (
-                <div style={{ textAlign: 'center', marginTop: '20px' }}>
-                  <button className="btn btn-primary" onClick={() => setStation(4)}>Go to Sandbox 4 →</button>
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {station === 4 && (
-            <motion.div key="st4" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-              <h2 className="station-header">Sandbox 4: Measure the sides!</h2>
-              <SquareMeasurer onComplete={() => handleStationComplete(4)} />
-              {completed.includes(4) && (
                 <div style={{ textAlign: 'center', marginTop: '20px' }}>
                   <button className="btn btn-primary" onClick={advance}>Next: Play Phase →</button>
                 </div>

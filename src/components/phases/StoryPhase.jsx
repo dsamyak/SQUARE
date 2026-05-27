@@ -7,22 +7,22 @@ const STORY_SLIDES = [
   {
     id: 's1',
     image: '/images/story/slide1.png',
-    text: "Aanya wanted to build the tallest tower in the world! But her round balls kept rolling away. 'Oh no!' she sighed.",
+    text: "Aanya looked at her window and noticed something. It had four sides... and they were ALL the same! Can you guess what shape that is?",
   },
   {
     id: 's2',
     image: '/images/story/slide2.png',
-    text: "Then, she found a magical, glowing block. It didn't roll at all!",
+    text: "Look at this square. Let's count its sides together! One, two, three, FOUR sides!",
   },
   {
     id: 's3',
     image: '/images/story/slide3.png',
-    text: "She looked closely. It had 4 straight sides, and 4 pointy corners. And every side was exactly the same size. 'It's a SQUARE!' she realized.",
+    text: "Here's the most important thing about a square — ALL its sides are EQUAL. They are the same length!",
   },
   {
     id: 's4',
     image: '/images/story/slide4.png',
-    text: "Aanya stacked her square blocks up high. They didn't roll, they didn't fall. She built the perfect tower!",
+    text: "Now it's YOUR turn! Drag the tiles onto the grid to build a square. Make sure all the sides match!",
   }
 ];
 
@@ -32,6 +32,7 @@ export default function StoryPhase() {
   const narrationRef = useRef(null);
 
   useEffect(() => {
+    // Stop previous narration and start new one for current slide
     stopNarration();
     narrationRef.current = narrate([{ text: STORY_SLIDES[slide].text }]);
     return () => {
@@ -44,6 +45,8 @@ export default function StoryPhase() {
     if (slide < STORY_SLIDES.length - 1) {
       setSlide(s => s + 1);
     } else {
+      narrationRef.current?.cancel();
+      stopNarration();
       advance();
     }
   };

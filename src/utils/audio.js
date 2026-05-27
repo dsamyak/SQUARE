@@ -1,103 +1,135 @@
 import { audioMap } from './audioMap.js';
 
-// Internal caches
-const elevenLabsCache = {};
-const preloadCache = {};
+// ─── MP3 SFX Playback ───────────────────────────────────────────
+const sfxCache = {};
 
-// Global playback state for cancellation
-let currentAudio = null;
-let cancelled = false;
-
-let actx = null;
-function initAudio() {
-  if (!actx) {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    actx = new AudioContext();
-  }
-  if (actx.state === 'suspended') actx.resume();
-}
-
-function playTone(freq, type, duration, vol=0.1) {
+function playSFX(name) {
+  if (cancelled) return;
   try {
-    initAudio();
-    const osc = actx.createOscillator();
-    const gain = actx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, actx.currentTime);
-    
-    gain.gain.setValueAtTime(vol, actx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + duration);
-    
-    osc.connect(gain);
-    gain.connect(actx.destination);
-    osc.start();
-    osc.stop(actx.currentTime + duration);
-  } catch (e) {}
+    let audio = sfxCache[name];
+    if (!audio) {
+      audio = new Audio(`/audio/sfx/${name}.mp3`);
+      sfxCache[name] = audio;
+    }
+    // reset if already playing
+    audio.currentTime = 0;
+    const p = audio.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch(() => {});
+    }
+  } catch (e) {
+    // Silently ignore
+  }
 }
 
 export const sounds = {
-  click: () => playTone(800, 'sine', 0.1, 0.05),
-  correct: () => {
-    playTone(600, 'sine', 0.1, 0.1);
-    setTimeout(() => playTone(800, 'sine', 0.2, 0.1), 100);
-  },
-  wrong: () => {
-    playTone(300, 'square', 0.2, 0.05);
-    setTimeout(() => playTone(250, 'square', 0.3, 0.05), 150);
-  },
-  celebrate: () => {
-    [400, 500, 600, 800].forEach((f, i) => {
-      setTimeout(() => playTone(f, 'sine', 0.2, 0.1), i * 150);
-    });
-  }
+  click: () => playSFX('click'),
+  correct: () => playSFX('correct'),
+  wrong: () => playSFX('wrong'),
+  celebrate: () => playSFX('celebrate'),
 };
 
-/**
- * Retrieves the URL for a given text segment.
- * 1. Static audioMap check
- * 2. Dynamic memory cache
- * 3. ElevenLabs API fallback (graceful null)
- */
-export async function getAudioUrl(text) {
-  if (audioMap[text]) return audioMap[text];
-  if (elevenLabsCache[text]) return elevenLabsCache[text];
+// ─── Speech Synthesis (voices preload) ───────────────────────
+let voicesLoaded = false;
+let cachedVoices = [];
 
-  // Dynamic fallback — would hit backend proxy in production
-  console.warn(`[Audio] No pre-generated audio for: "${text}"`);
-  return null;
+function loadVoices() {
+  if (voicesLoaded) return;
+  cachedVoices = window.speechSynthesis?.getVoices() || [];
+  if (cachedVoices.length > 0) voicesLoaded = true;
 }
 
+// Browsers fire this event when voices are ready
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => {
+    cachedVoices = window.speechSynthesis.getVoices();
+    voicesLoaded = true;
+  };
+  // Also try immediately (some browsers resolve synchronously)
+  loadVoices();
+}
+
+function pickVoice() {
+  if (!voicesLoaded) loadVoices();
+  // Prefer a natural-sounding English voice
+  return (
+    cachedVoices.find(v => v.lang.startsWith('en') && v.name.includes('Google')) ||
+    cachedVoices.find(v => v.lang.startsWith('en') && v.name.includes('Female')) ||
+    cachedVoices.find(v => v.lang.startsWith('en-US')) ||
+    cachedVoices.find(v => v.lang.startsWith('en')) ||
+    null
+  );
+}
+
+// ─── Playback state ──────────────────────────────────────────
+let currentAudio = null;   // Audio element or SpeechSynthesisUtterance
+let cancelled = false;
+
 /**
- * Plays a single text segment. Returns a promise that resolves when done.
- * Checks the `cancelled` flag between play calls.
+ * Speaks a text segment using its pre-generated MP3, falling back to browser TTS.
  */
 export async function speak(text) {
   if (cancelled) return;
-  const url = await getAudioUrl(text);
-  if (!url) return;
 
+  const url = audioMap[text] || null;
+
+  if (url) {
+    // Try MP3 first
+    try {
+      await playMP3(url, text);
+      return;
+    } catch (_) {
+      // MP3 failed (missing file, autoplay blocked, etc.) → fall through to TTS
+    }
+  }
+
+  // Fallback: browser text-to-speech
+  await speakTTS(text);
+}
+
+function playMP3(url, text) {
   return new Promise((resolve, reject) => {
+    if (cancelled) return resolve();
+
     const audio = new Audio(url);
     currentAudio = audio;
+
     audio.onended = () => { currentAudio = null; resolve(); };
-    audio.onerror = () => { currentAudio = null; resolve(); }; // graceful
-    audio.play().catch(() => resolve());
+    audio.onerror = () => { currentAudio = null; reject(new Error('MP3 load error')); };
+
+    const p = audio.play();
+    if (p && typeof p.catch === 'function') {
+      p.catch((e) => {
+        currentAudio = null;
+        reject(e);
+      });
+    }
   });
 }
 
-/**
- * Preloads an array of segments for seamless playback.
- */
-export async function preloadNarration(segments) {
-  for (const segment of segments) {
-    const url = await getAudioUrl(segment.text);
-    if (url && !preloadCache[url]) {
-      const audio = new Audio();
-      audio.preload = 'auto';
-      audio.src = url;
-      preloadCache[url] = audio;
-    }
-  }
+function speakTTS(text) {
+  return new Promise((resolve) => {
+    if (cancelled) return resolve();
+    if (!('speechSynthesis' in window)) return resolve();
+
+    // Cancel any lingering browser speech
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.volume = 0.8;
+    utterance.rate = 0.9;
+    utterance.pitch = 1.1;
+
+    const voice = pickVoice();
+    if (voice) utterance.voice = voice;
+
+    currentAudio = utterance;
+
+    utterance.onend = () => { currentAudio = null; resolve(); };
+    utterance.onerror = () => { currentAudio = null; resolve(); };
+
+    window.speechSynthesis.speak(utterance);
+  });
 }
 
 /**
@@ -106,44 +138,36 @@ export async function preloadNarration(segments) {
 export function stopNarration() {
   cancelled = true;
   if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
+    if (currentAudio instanceof HTMLAudioElement) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    }
     currentAudio = null;
+  }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
   }
 }
 
 /**
- * Plays an array of narration segments sequentially with look-ahead preloading.
- * Returns a cancellation handle: { cancel() }
- *
- * Usage:
- *   const handle = narrate(segments, audioEnabled);
- *   // later: handle.cancel();
+ * Plays an array of narration segments sequentially.
+ * Returns a handle with a cancel() method.
  */
 export function narrate(segments, audioEnabled = true) {
   if (!audioEnabled || !segments || segments.length === 0) {
-    return { cancel: () => {} };
+    return { cancel() {} };
   }
 
   cancelled = false;
   let aborted = false;
 
   const run = async () => {
-    // Preload first segment
-    await getAudioUrl(segments[0].text);
-
     for (let i = 0; i < segments.length; i++) {
       if (cancelled || aborted) break;
-
-      // Look-ahead preload
-      if (i + 1 < segments.length) {
-        getAudioUrl(segments[i + 1].text);
-      }
-
       try {
         await speak(segments[i].text);
       } catch (e) {
-        console.error(`Playback failed: "${segments[i].text}"`, e);
+        console.warn('[narrate] segment failed:', segments[i].text, e);
       }
     }
   };
@@ -151,9 +175,9 @@ export function narrate(segments, audioEnabled = true) {
   run();
 
   return {
-    cancel: () => {
+    cancel() {
       aborted = true;
       stopNarration();
-    }
+    },
   };
 }

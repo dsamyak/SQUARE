@@ -1,4 +1,3 @@
-import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { usePhase } from '../../hooks/usePhase';
 import { narrate, stopNarration } from '../../utils/audio';
@@ -6,23 +5,17 @@ import { introNarration } from '../../utils/narration';
 
 export default function IntroScreen() {
   const { advance } = usePhase();
-  const narrationRef = useRef(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      narrationRef.current = narrate(introNarration());
-    }, 200);
-    return () => {
-      clearTimeout(timer);
-      narrationRef.current?.cancel();
-      stopNarration();
-    };
-  }, []);
 
   const handleStart = () => {
-    narrationRef.current?.cancel();
-    stopNarration();
-    advance();
+    // Play narration on user click — this satisfies the browser autoplay policy
+    const handle = narrate(introNarration());
+    
+    // Wait a brief moment so the user hears the greeting, then advance
+    setTimeout(() => {
+      handle.cancel();
+      stopNarration();
+      advance();
+    }, 3000);
   };
 
   return (

@@ -1,11 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePhase } from '../../hooks/usePhase';
 import { motion } from 'framer-motion';
 import AnimatedSquare from '../simulations/AnimatedSquare';
+import { narrate, stopNarration } from '../../utils/audio';
+import { wonderNarration } from '../../utils/narration';
 
 export default function WonderPhase() {
   const { advance } = usePhase();
   const [isAnimationComplete, setIsAnimationComplete] = useState(false);
+  const narrationRef = useRef(null);
+
+  useEffect(() => {
+    narrationRef.current = narrate(wonderNarration());
+    return () => {
+      narrationRef.current?.cancel();
+      stopNarration();
+    };
+  }, []);
+
+  const handleAdvance = () => {
+    narrationRef.current?.cancel();
+    stopNarration();
+    advance();
+  };
 
   return (
     <div className="wonder-screen">
@@ -22,7 +39,7 @@ export default function WonderPhase() {
             <p className="wonder-question" style={{ fontSize: '1.5rem', marginBottom: '24px' }}>
               It's the 4 equal sides and 4 corners!
             </p>
-            <button className="btn btn-primary" onClick={advance}>
+            <button className="btn btn-primary" onClick={handleAdvance}>
               Let's hear a story →
             </button>
           </motion.div>
