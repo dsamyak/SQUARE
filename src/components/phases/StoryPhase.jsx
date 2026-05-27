@@ -1,70 +1,100 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { usePhase } from '../../hooks/usePhase';
 import { motion, AnimatePresence } from 'framer-motion';
+import { narrate, stopNarration } from '../../utils/audio';
 
 const STORY_SLIDES = [
   {
-    id: 1,
-    image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&q=80',
-    title: "Aanya's Room",
-    text: "Aanya is looking at her room. She sees something special...",
-    highlight: "It's a SQUARE!",
-    audioKey: "Aanya looked at her window and noticed something. It had four sides... and they were ALL the same! Can you guess what shape that is?",
-    mascotText: "Can you find more squares around you?"
+    id: 's1',
+    image: '/images/story/slide1.png',
+    text: "Aanya wanted to build the tallest tower in the world! But her round balls kept rolling away. 'Oh no!' she sighed.",
+  },
+  {
+    id: 's2',
+    image: '/images/story/slide2.png',
+    text: "Then, she found a magical, glowing block. It didn't roll at all!",
+  },
+  {
+    id: 's3',
+    image: '/images/story/slide3.png',
+    text: "She looked closely. It had 4 straight sides, and 4 pointy corners. And every side was exactly the same size. 'It's a SQUARE!' she realized.",
+  },
+  {
+    id: 's4',
+    image: '/images/story/slide4.png',
+    text: "Aanya stacked her square blocks up high. They didn't roll, they didn't fall. She built the perfect tower!",
   }
 ];
 
 export default function StoryPhase() {
   const { advance } = usePhase();
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const [slide, setSlide] = useState(0);
+  const narrationRef = useRef(null);
+
+  useEffect(() => {
+    stopNarration();
+    narrationRef.current = narrate([{ text: STORY_SLIDES[slide].text }]);
+    return () => {
+      narrationRef.current?.cancel();
+      stopNarration();
+    };
+  }, [slide]);
 
   const handleNext = () => {
-    if (currentSlide < STORY_SLIDES.length - 1) {
-      setCurrentSlide(s => s + 1);
+    if (slide < STORY_SLIDES.length - 1) {
+      setSlide(s => s + 1);
     } else {
       advance();
     }
   };
 
-  const slide = STORY_SLIDES[currentSlide];
+  const currentSlide = STORY_SLIDES[slide];
 
   return (
     <div className="story-screen">
-      <AnimatePresence mode="wait">
-        <motion.div 
-          key={slide.id}
-          className="story-slide glass-card"
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.4 }}
-        >
-          <h2 className="story-title">{slide.title}</h2>
-          
-          <div className="story-slide-image">
-            <img src={slide.image} alt={slide.title} />
-          </div>
-
-          <p className="story-text">{slide.text}</p>
-          
-          <div className="story-highlight">
-            {slide.highlight}
-          </div>
-
-          <div className="story-mascot">
-            <span style={{ fontSize: '1.5rem' }}>🤖</span>
-            <span>{slide.mascotText}</span>
-          </div>
-
-          <div className="story-nav">
-            {/* Audio button could go here or global audio handles it */}
-            <div />
-            <button className="btn btn-primary" onClick={handleNext}>
-              {currentSlide === STORY_SLIDES.length - 1 ? "Let's Learn! →" : "Next →"}
-            </button>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+      <div className="story-layout" style={{ width: '100%' }}>
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={currentSlide.id}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            className="story-slide glass-card"
+            style={{ padding: '30px' }}
+          >
+            <div className="story-image-container" style={{ display: 'flex', justifyContent: 'center', backgroundColor: 'transparent', maxHeight: 'none', border: 'none' }}>
+              <img src={currentSlide.image} alt="Story visual" style={{ width: '100%', maxHeight: '450px', objectFit: 'contain', borderRadius: '16px' }} />
+            </div>
+            
+            <div className="story-content" style={{ textAlign: 'center' }}>
+              <p className="story-text">{currentSlide.text}</p>
+              
+              <div className="story-nav">
+                <button 
+                  className="btn btn-secondary btn-sm" 
+                  onClick={() => setSlide(s => Math.max(0, s - 1))}
+                  disabled={slide === 0}
+                  style={{ minWidth: '100px' }}
+                >
+                  ← Back
+                </button>
+                <div className="progress-dots" style={{ margin: 0 }}>
+                  {STORY_SLIDES.map((_, i) => (
+                    <div key={i} className={`progress-dot ${i === slide ? 'active' : ''}`} />
+                  ))}
+                </div>
+                <button 
+                  className="btn btn-primary btn-sm" 
+                  onClick={handleNext}
+                  style={{ minWidth: '100px' }}
+                >
+                  {slide === STORY_SLIDES.length - 1 ? 'Start Simulating →' : 'Next →'}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

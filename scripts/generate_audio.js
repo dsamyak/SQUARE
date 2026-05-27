@@ -39,6 +39,14 @@ const phrases = [
   // EXPLORE: SPOT
   { text: "Time to go on a shape hunt! Can you find all the squares hiding on the screen? Tap each one you find!", style: 'statement' },
   
+  // EXPLORE: SORT
+  { text: "Drag only the Perfect Squares into the bin!", style: 'statement' },
+  { text: "Oops! That shape does not have 4 EQUAL sides.", style: 'thinking' },
+  
+  // EXPLORE: MEASURE
+  { text: "Tap each side of the square to measure it with your magic ruler!", style: 'statement' },
+  { text: "Wow! All 4 sides are exactly the same!", style: 'celebration' },
+  
   // CORRECT FEEDBACK
   { text: "Wonderful!", style: 'celebration' },
   { text: "Great job!", style: 'celebration' },
@@ -55,6 +63,19 @@ const phrases = [
   { text: "That's not a square, keep looking!", style: 'thinking' },
   { text: "Hmm, check your sides!", style: 'thinking' },
   
+  // QUESTIONS (From Question Bank)
+  { text: "How many sides does a perfect square have?", style: 'question' },
+  { text: "What is special about the sides of a square?", style: 'question' },
+  { text: "How many corners does a square have?", style: 'question' },
+  { text: "I have 4 sides, but two of my sides are longer than the others. Am I a square?", style: 'question' },
+  { text: "If you cut a perfect square right down the middle, what shape do you get?", style: 'question' },
+  { text: "A circle has corners, just like a square.", style: 'question' },
+  { text: "Which of these everyday items is usually shaped like a perfect square?", style: 'question' },
+  { text: "Which of these is NOT a square?", style: 'question' },
+  { text: "If you put 2 squares side-by-side, how many total corners do they have in the world?", style: 'question' },
+  { text: "A square has sides of length 2. Are all 4 sides length 2?", style: 'question' },
+  { text: "What comes next in the pattern? Square, Circle, Square, Circle, ...", style: 'question' },
+
   // COMPLETION
   { text: "AMAZING! You are now a Square Expert! You learned that a square has 4 equal sides and 4 corners. Well done!", style: 'celebration' },
   { text: "You made a square!", style: 'celebration' }

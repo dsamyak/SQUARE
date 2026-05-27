@@ -1,80 +1,111 @@
-export const QUESTION_TYPES = {
-  MCQ_IDENTIFICATION: 'mcq-identification',
-  PROPERTY_COUNT: 'property-count',
-  CORNER_COUNT: 'corner-count',
-  TRUE_FALSE: 'true-false',
-  REAL_WORLD_SORT: 'real-world-sort',
-  EQUAL_SIDES_COMPARE: 'equal-sides-compare',
-};
+// A large pool of diverse questions about squares
+const SQUARE_QUESTIONS = [
+  // Core Properties
+  {
+    id: 'prop-1',
+    type: 'mcq',
+    prompt: 'How many sides does a perfect square have?',
+    options: ['3', '4', '5', 'It depends'],
+    correctAnswer: '4',
+  },
+  {
+    id: 'prop-2',
+    type: 'mcq',
+    prompt: 'What is special about the sides of a square?',
+    options: ['They are all different sizes', 'Two are long, two are short', 'They are all exactly the same size', 'They are curved'],
+    correctAnswer: 'They are all exactly the same size',
+  },
+  {
+    id: 'prop-3',
+    type: 'mcq',
+    prompt: 'How many corners does a square have?',
+    options: ['3', '4', '8', '0'],
+    correctAnswer: '4',
+  },
 
-const TRUE_FALSE_STATEMENTS = [
-  { statement: "A square has 3 sides.", isTrue: false },
-  { statement: "A square has 4 sides.", isTrue: true },
-  { statement: "All sides of a square are the same length.", isTrue: true },
-  { statement: "A square has 4 corners.", isTrue: true },
-  { statement: "A square can have sides of different lengths.", isTrue: false },
-  { statement: "A square has 5 corners.", isTrue: false },
+  // Trick / Logic
+  {
+    id: 'logic-1',
+    type: 'truefalse',
+    prompt: 'I have 4 sides, but two of my sides are longer than the others. Am I a square?',
+    options: ['Yes', 'No'],
+    correctAnswer: 'No',
+  },
+  {
+    id: 'logic-2',
+    type: 'mcq',
+    prompt: 'If you cut a perfect square right down the middle, what shape do you get?',
+    options: ['Two Triangles', 'Two Rectangles', 'Two Circles', 'Two Squares'],
+    correctAnswer: 'Two Rectangles', // cutting a square vertically makes 2 rectangles
+  },
+  {
+    id: 'logic-3',
+    type: 'truefalse',
+    prompt: 'A circle has corners, just like a square.',
+    options: ['True', 'False'],
+    correctAnswer: 'False',
+  },
+
+  // Real-world Applications
+  {
+    id: 'real-1',
+    type: 'mcq',
+    prompt: 'Which of these everyday items is usually shaped like a perfect square?',
+    options: ['A bicycle wheel', 'A chessboard', 'A slice of pizza', 'A banana'],
+    correctAnswer: 'A chessboard',
+  },
+  {
+    id: 'real-2',
+    type: 'mcq',
+    prompt: 'Which of these is NOT a square?',
+    options: ['A checkerboard', 'A computer monitor', 'A regular Rubik\'s Cube face', 'A DVD disc'],
+    correctAnswer: 'A DVD disc',
+  },
+
+  // Counting / Math integration
+  {
+    id: 'math-1',
+    type: 'mcq',
+    prompt: 'If you put 2 squares side-by-side, how many total corners do they have in the world?',
+    options: ['4', '6', '8', '10'],
+    correctAnswer: '8', 
+  },
+  {
+    id: 'math-2',
+    type: 'mcq',
+    prompt: 'A square has sides of length 2. Are all 4 sides length 2?',
+    options: ['Yes', 'No'],
+    correctAnswer: 'Yes',
+  },
+  
+  // Patterns
+  {
+    id: 'pattern-1',
+    type: 'mcq',
+    prompt: 'What comes next in the pattern? Square, Circle, Square, Circle, ...',
+    options: ['Triangle', 'Square', 'Circle', 'Star'],
+    correctAnswer: 'Square',
+  },
 ];
 
-export function generateSessionQuestions() {
-  const sessionLength = 5; // Can be randomized 5-7
-  const questions = [];
+/**
+ * Shuffles an array in place (Fisher-Yates algorithm)
+ */
+function shuffle(array) {
+  let currentIndex = array.length, randomIndex;
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+  }
+  return array;
+}
 
-  // Required: MCQ
-  questions.push({
-    id: `q-mcq-${Date.now()}`,
-    type: QUESTION_TYPES.MCQ_IDENTIFICATION,
-    prompt: "Which of these is a square?",
-    audioKey: "Which of these is a square?",
-    options: ['square', 'circle', 'triangle', 'rectangle'],
-    correctAnswer: 'square',
-    hint: "Look for 4 equal sides and 4 corners!"
-  });
-
-  // Required: Property Count
-  questions.push({
-    id: `q-prop-${Date.now()}`,
-    type: QUESTION_TYPES.PROPERTY_COUNT,
-    prompt: "How many sides does a square have?",
-    audioKey: "How many sides does a square have?",
-    options: ['2', '3', '4', '5'],
-    correctAnswer: '4',
-    hint: "Count the straight lines that make the shape."
-  });
-
-  // Required: Corner Count
-  questions.push({
-    id: `q-corner-${Date.now()}`,
-    type: QUESTION_TYPES.CORNER_COUNT,
-    prompt: "Count the corners on this square.",
-    audioKey: "Count the corners on this square.",
-    correctAnswer: 4,
-    hint: "Tap the pointy bits where the sides meet!"
-  });
-
-  // Optional: True/False
-  const tf = TRUE_FALSE_STATEMENTS[Math.floor(Math.random() * TRUE_FALSE_STATEMENTS.length)];
-  questions.push({
-    id: `q-tf-${Date.now()}`,
-    type: QUESTION_TYPES.TRUE_FALSE,
-    prompt: tf.statement,
-    audioKey: tf.statement,
-    options: ['TRUE', 'FALSE'],
-    correctAnswer: tf.isTrue ? 'TRUE' : 'FALSE',
-    hint: "Think about the rules of a square."
-  });
-
-  // Optional: Equal Sides Compare
-  questions.push({
-    id: `q-eq-${Date.now()}`,
-    type: QUESTION_TYPES.EQUAL_SIDES_COMPARE,
-    prompt: "Which shape has all equal sides?",
-    audioKey: "Which shape has all equal sides?",
-    options: ['square', 'rectangle'], // simplified shapes
-    correctAnswer: 'square',
-    hint: "Equal means they are exactly the same length."
-  });
-
-  // Shuffle the questions array
-  return questions.sort(() => Math.random() - 0.5);
+/**
+ * Returns a randomly shuffled subset of questions for the Play Phase.
+ * Randomly picks exactly 5 questions per session to ensure uniqueness.
+ */
+export function generateSessionQuestions(count = 5) {
+  const shuffled = shuffle([...SQUARE_QUESTIONS]);
+  return shuffled.slice(0, count);
 }
