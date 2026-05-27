@@ -8,21 +8,49 @@ const preloadCache = {};
 let currentAudio = null;
 let cancelled = false;
 
-// SFX (pre-loaded at module level for instant playback)
-export const sounds = {
-  correct: () => playSound('/audio/sfx/correct.mp3'),
-  wrong:   () => playSound('/audio/sfx/wrong.mp3'),
-  click:   () => playSound('/audio/sfx/click.mp3'),
-  celebrate: () => playSound('/audio/sfx/celebrate.mp3'),
-};
-
-function playSound(src) {
-  try {
-    const a = new Audio(src);
-    a.volume = 0.6;
-    a.play().catch(() => {});
-  } catch {}
+let actx = null;
+function initAudio() {
+  if (!actx) {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    actx = new AudioContext();
+  }
+  if (actx.state === 'suspended') actx.resume();
 }
+
+function playTone(freq, type, duration, vol=0.1) {
+  try {
+    initAudio();
+    const osc = actx.createOscillator();
+    const gain = actx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, actx.currentTime);
+    
+    gain.gain.setValueAtTime(vol, actx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + duration);
+    
+    osc.connect(gain);
+    gain.connect(actx.destination);
+    osc.start();
+    osc.stop(actx.currentTime + duration);
+  } catch (e) {}
+}
+
+export const sounds = {
+  click: () => playTone(800, 'sine', 0.1, 0.05),
+  correct: () => {
+    playTone(600, 'sine', 0.1, 0.1);
+    setTimeout(() => playTone(800, 'sine', 0.2, 0.1), 100);
+  },
+  wrong: () => {
+    playTone(300, 'square', 0.2, 0.05);
+    setTimeout(() => playTone(250, 'square', 0.3, 0.05), 150);
+  },
+  celebrate: () => {
+    [400, 500, 600, 800].forEach((f, i) => {
+      setTimeout(() => playTone(f, 'sine', 0.2, 0.1), i * 150);
+    });
+  }
+};
 
 /**
  * Retrieves the URL for a given text segment.
