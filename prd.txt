@@ -1,0 +1,507 @@
+⬛ SQUARES
+Grade 1 Geometry — Introduction to Shapes
+Gamified Simulation Learning Website
+PRODUCT REQUIREMENTS DOCUMENT (PRD)
+Platform
+Web (React + Vite) — hosted at intelliasg.com/courses/grade-1-math/
+Document Version
+v1.0 — May 2026
+Prepared For
+Intellia SG | Grade 1 Math — Section 6.2: Square
+Target Audience
+Grade 1 students (ages 5–7), globally, across diverse curricula (Singapore MOE, US CCSS, UK National, CBSE, IB PYP)
+Reference UI
+https://equal-tau.vercel.app/ | Repo: github.com/dsamyak/equal
+1. Executive Summary
+This Product Requirements Document defines the full scope, user experience, gamification design, and content architecture for SQUARES — a standalone, simulation-first, gamified web lesson for Grade 1 mathematics, specifically covering Lesson 6.2: Square from the Intellia SG curriculum.
+The product mirrors the design ethos of the existing equal-tau.vercel.app lesson (Lesson 4.1: Equal Groups), applying the same React-based interactive pedagogy, audio narrative approach, and visual storytelling to introduce young learners to squares as a 2D geometric shape.
+The lesson follows a strict Learn → Simulate → Practice → Celebrate pipeline. Every practice question is randomized per session, and every simulation interaction is visually rich and audio-guided. The product will be deployed directly on intelliasg.com/courses/grade-1-math/ under Lesson 6.2.
+1.1 Mission Statement
+To make every Grade 1 child in the world understand what a square is — not by memorization, but by seeing it, building it, touching it, and playing with it — through the most engaging 20-minute digital lesson they have ever experienced.
+1.2 Key Differentiators
+Simulation-first: children interact with shapes before answering questions
+Audio-led narration matching the equal-tau.vercel.app voice style
+100% randomized practice — no two sessions produce the same question order or values
+Globally inclusive content referencing real-world square objects from 20+ countries
+Matches Intellia SG visual brand: bold typography, coral/purple/blue palette, emoji-accented UI
+Celebration/reward system with stars, confetti, and encouraging audio feedback
+2. Product Overview
+2.1 What is This Product?
+SQUARES is a single-page, scroll-based, fully interactive web lesson built in React. It is one lesson within the Intellia SG Grade 1 Math course — specifically Lesson 6.2 of Section 6 (Geometry: Shapes). The lesson takes approximately 15–25 minutes to complete depending on pace.
+The lesson consists of four major phases delivered in sequence:
+LEARN — Story-driven introduction with animated simulation models
+EXPLORE — Student-interactive simulation sandbox (drag, build, tap)
+PRACTICE — Randomized, gamified question sets with audio feedback
+CELEBRATE — Stars, rewards, and completion animation
+2.2 Curriculum Alignment
+The Square lesson is aligned to all major global Grade 1 mathematics frameworks:
+Curriculum / Country
+Standard / Strand
+Learning Objective
+Singapore MOE
+Primary 1 Mathematics — Geometry: 2D Shapes
+Recognize squares by sides and corners
+US Common Core (CCSS)
+K.G.A.2, 1.G.A.1
+Describe attributes: 4 equal sides, 4 right angles
+UK National Curriculum
+KS1 Year 1 — Geometry: Properties of Shapes
+Name and identify common 2D shapes
+India CBSE
+Class 1 Maths — Chapter: Shapes and Space
+Identify squares in surroundings
+IB PYP
+Shape & Space Strand — Grade 1
+Classify shapes by properties
+Australia ACARA
+Foundation–Year 2 — Geometric Reasoning
+Name, sort, describe common 2D shapes
+Canada (Ontario)
+Grade 1 Geometry — 2D Shapes
+Identify and describe plane figures
+2.3 Learning Objectives
+By the end of this lesson, the student will be able to:
+Name and recognize a square as a 2D shape
+Identify that a square has exactly 4 sides, all of equal length
+Identify that a square has exactly 4 corners (right angles)
+Distinguish squares from other shapes (circles, triangles, rectangles)
+Find squares in real-world objects (tiles, windows, book covers, flags)
+Describe a square using simple language: 'A square has 4 equal sides'
+3. User Personas
+3.1 Primary Persona: The Young Learner
+Attribute
+Description
+Name
+Aanya / Luca / Mei / Kwame (globally representative)
+Age
+5–7 years old
+Grade
+Grade 1 / Primary 1 / Year 1
+Tech Literacy
+Tablet-native; understands tap, swipe, drag
+Attention Span
+8–12 minutes per segment; needs constant visual reward
+Reading Level
+Emergent; prefers audio narration over text
+Motivation
+Stars, badges, fun characters, encouraging sounds
+Pain Point
+Abstract shapes on paper = boring; wants to touch and build
+Goal
+Understand what a square is and feel proud of learning it
+3.2 Secondary Persona: The Parent / Teacher
+Attribute
+Description
+Role
+Parent at home or classroom teacher
+Goal
+Child completes lesson independently with no adult help
+Needs
+Progress visibility, curriculum alignment proof, safe platform
+Pain Point
+Most online math tools are too abstract for Grade 1
+Device
+Assigns on tablet/laptop; may observe on desktop
+4. Pedagogical Framework
+4.1 Approach: Concrete → Pictorial → Abstract (CPA)
+The lesson follows the Singapore Math CPA progression — the same framework underpinning the Intellia SG curriculum:
+CPA Stage
+Implementation
+Website Section
+Concrete
+Simulation phase: Student drags tiles to build a square
+Sections 5.1–5.2 (Explore/Build)
+Pictorial
+Learn phase: Animated square with labeled sides/corners
+Sections 4.1–4.4 (Learn)
+Abstract
+Practice phase: MCQ, tap-to-identify, fill-in questions
+Sections 6.1–6.5 (Practice)
+4.2 Gamification Layer (GBL Principles)
+The following game-based learning mechanics are embedded throughout:
+Mechanic
+Description
+⭐ Stars
+Earned per correct answer; displayed in persistent top bar
+🔥 Streak Counter
+Consecutive correct answers multiply star rewards
+💡 Hint System
+3 hints per session; audio + visual cue; no penalty
+🎉 Confetti Burst
+Triggered on completing each phase
+🏆 Trophy
+Awarded on 100% lesson completion
+🔁 Random Questions
+Every session generates a new question pool — no repetition
+🔊 Audio Feedback
+Cheerful SFX for correct; gentle retry SFX for incorrect
+📊 Progress Bar
+Visible top bar showing phase completion (Learn → Explore → Practice → Celebrate)
+🌍 Global Objects
+Real-world square items from diverse cultures appear randomly
+4.3 Audio Philosophy
+Audio is central to this lesson, matching the narration style of equal-tau.vercel.app. The audio approach:
+Friendly, warm, gender-neutral narrator voice (child-adjacent tone)
+Every new concept is spoken aloud before text appears
+Correct answer: cheerful chime + encouraging phrase ('Great job! That's a square!')
+Wrong answer: gentle, non-punishing sound + 'Let's try again!' prompt
+Simulation interactions: satisfying click/snap sounds on shape placement
+Phase transitions: brief fanfare to mark progress
+Audio is auto-played on interaction; mute button always visible
+All audio is custom-generated (no licensed music); child-safe
+5. Lesson Structure & Screen Flow
+5.1 Screen Architecture
+The lesson is a single scrollable React page divided into 6 clearly delineated sections. Navigation is primarily scroll-based with phase-gating: the student must complete each section before the next unlocks.
+Section
+Name
+Content
+S1
+Hero / Welcome Screen
+Title, avatar, 'Start Learning' CTA button
+S2
+Story Introduction
+Animated story panel: 'What is a Square?'
+S3
+Learn: Properties
+Animated square showing 4 sides + 4 corners
+S4
+Learn: Real World
+Gallery of global square objects (randomized per session)
+S5
+Explore: Build It!
+Simulation sandbox — drag tiles to form a square
+S6
+Explore: Spot It!
+Simulation — identify squares among mixed shapes
+S7
+Practice: Questions
+5–7 randomized questions (MCQ + drag + tap)
+S8
+Celebrate
+Stars, trophy, confetti, completion summary
+5.2 Section 1 — Hero Welcome Screen
+Full-width hero panel. Visually matches equal-tau.vercel.app hero structure.
+Large emoji square icon (⬛) with bounce animation
+Title: 'What is a Square?' in bold, child-friendly font
+Subtitle: 'Let's discover squares everywhere!'
+Animated avatar character (Intellia mascot) waving
+'Start Learning' button with pulsing glow effect
+Background: soft gradient (lavender → sky blue), subtle floating shape confetti
+Audio: Welcome narration plays on page load ('Hello! Today we are going to learn about SQUARES!')
+Progress bar at top showing 4 phases: Learn | Explore | Practice | Celebrate
+5.3 Section 2 — Story Introduction
+Scrollable story panel using illustrated scene cards (matching equal-tau.vercel.app card layout).
+Scene 1: 'Aanya is looking at her room. She sees something special...' — shows illustrated bedroom
+Scene 2: Close-up of a window tile. 'It's a SQUARE!' — square highlights with glow
+Scene 3: 'Can you find more squares around you?' — animated search animation
+Each scene card has: illustration, 1–2 sentence caption, audio narration button
+Cards appear one at a time with slide-in animation on scroll
+5.4 Section 3 — Learn: Properties of a Square
+Core concept delivery via animated simulation model.
+Animated square SVG appears, draws itself (stroke-dashoffset animation)
+Side 1 highlights in orange with label '1 side' → audio: 'This is one side of a square'
+Sides 2, 3, 4 animate in sequence — each with click interaction to replay
+Corner markers appear: animated dots at each corner with label '1 corner'
+Summary card: '4 equal sides + 4 corners = A SQUARE!' with celebratory animation
+Interactive slider: student drags to 'resize' the square — sides remain equal (teaching equal length)
+Compare panel: Square vs Rectangle — animated side-by-side showing equal vs unequal sides
+5.5 Section 4 — Learn: Squares in the Real World
+Visually rich gallery of real-world square objects. All images are randomized per session from a pool of 20+ items.
+Real-World Object
+Cultural Reference
+Window pane
+Global (India, Singapore, Europe)
+Rubik's Cube face
+Global toy
+Checkerboard tile
+Global floor tile
+Chessboard square
+Global
+Postage stamp
+UK, India, US, Singapore
+Sandwich (cut square)
+US, UK, Australia
+Swiss flag
+Switzerland (perfect square flag)
+Minecraft block face
+Global digital culture
+Waffle grid
+US, Europe
+Picture frame
+Global
+Napkin fold
+Japan, Korea, Singapore
+Floor mat
+India, Thailand, Morocco
+Each gallery card: image thumbnail + name + emoji + audio label. Tap any card to hear the name.
+5.6 Section 5 — Explore: Build a Square (Simulation)
+PRIMARY SIMULATION MODULE — This is the core interactive experience.
+Grid canvas appears: 6x6 dot grid
+Student is given colored tiles (unit squares) in a drag-and-drop interface
+Task: 'Drag the tiles to make a square! Make sure all sides are the same length.'
+Snap-to-grid system: tiles snap cleanly to grid positions
+Real-time side measurement labels appear as tiles are placed
+If sides are unequal: gentle audio 'Hmm, check your sides!' + side highlights in red
+When a valid square is formed: green glow + confetti burst + audio: 'You made a square!'
+Challenge levels (unlock sequentially): 2x2 square → 3x3 square → 4x4 square
+Visual ruler appears alongside showing equal length comparison
+5.7 Section 6 — Explore: Spot the Square (Simulation)
+Shape identification simulation — randomized each session.
+Screen fills with 6–9 mixed 2D shapes: circles, triangles, rectangles, squares
+All shapes are SVG-animated, colorful, bouncing gently
+Task: 'Tap all the SQUARES!'
+Each shape randomizes: size, color, rotation, position
+Tap a square: ✅ green glow, check sound, score +1
+Tap a non-square: ❌ gentle shake animation, 'That's not a square, keep looking!'
+Session ends when all squares are found: fanfare + star reward
+Minimum 2 squares always present; maximum 4; positions randomized
+5.8 Section 7 — Practice Questions (Randomized)
+5–7 questions per session, randomly selected from a question bank of 30+ questions across 6 types.
+Question Type A: Multiple Choice — Identification
+'Which of these is a square?' — 4 shape images shown; student taps the correct one. Shapes, colors, and sizes randomize.
+Question Type B: Property Questions
+'How many sides does a square have?' — Tap-to-select (number buttons 2, 3, 4, 5). Answer is always 4 but wrong options randomize.
+Question Type C: Counting Corners
+'Count the corners on this square' — Animated square shown; student taps each corner to count. Confetti when all 4 are tapped.
+Question Type D: True or False
+Statement shown: e.g. 'A square has 3 sides.' Student taps TRUE or FALSE. Statements randomize from a pool of 12.
+Question Type E: Real-World Sorting
+3–4 objects shown (mix of square and non-square items). Student drags each to correct bin: 'Square' or 'Not a Square'. Objects randomize from the 20+ item pool.
+Question Type F: Equal Sides Comparison
+Two shapes shown side by side. 'Which shape has all equal sides?' — reinforces core square property. Distractor shapes always include one with obviously unequal sides.
+5.9 Question Randomization Rules
+Rule
+Specification
+Session question count
+Randomly 5, 6, or 7 per session
+Question type distribution
+At least 1 of each core type (A, B, C); D/E/F fill remaining slots
+Shape colors
+Randomized per question from 8-color accessible palette
+Shape sizes
+Randomized within safe display ranges
+Real-world objects
+No repeat within a session; drawn from 20+ pool
+Wrong answer options
+Shuffled each load; never in same position twice
+True/False statements
+12-statement pool; max 3 per session, no repeats
+Order
+Question sequence randomized; never same order in consecutive sessions
+5.10 Section 8 — Celebrate!
+Full-screen confetti animation (react-confetti or CSS)
+Star count displayed: 'You earned X stars!'
+Trophy animation: trophy drops from top with bounce
+Audio: celebration fanfare + narrator: 'Amazing! You're a Square Expert!'
+Summary card: '4 sides ✓ | 4 corners ✓ | Equal sides ✓'
+Next Lesson teaser: 'Ready for Rectangles?' with preview card
+'Try Again' button to replay with new random questions
+Share button (optional): generate a 'I learned about Squares!' badge image
+6. UI/UX Requirements
+6.1 Design System — Match equal-tau.vercel.app
+The visual design must strictly resonate with the equal-tau.vercel.app structure. Key design tokens:
+Token
+Value / Description
+Primary Font
+Nunito or Poppins — rounded, child-friendly, same as equal-tau
+Heading Font Size
+32–48px for section titles; 20–24px for body
+Primary Color
+#6C63FF (purple) — hero CTAs, active states
+Accent 1
+#FF6B6B (coral/red) — highlights, wrong answer
+Accent 2
+#4ECDC4 (teal) — correct answer, success states
+Accent 3
+#FFE66D (yellow) — stars, celebration
+Background
+#F8F9FF — soft off-white, feels like paper
+Card Background
+#FFFFFF — clean white with subtle shadow
+Border Radius
+16px on cards, 12px on buttons — soft and friendly
+Button Style
+Gradient fill, bold label, large tap target (min 48px height)
+Spacing
+Generous padding: 32–48px section padding; 16–24px card padding
+Animation
+Framer Motion or CSS — spring-based, smooth 300–400ms transitions
+Icon Style
+Emoji + SVG hybrid — colorful, large, accessible
+Shadow
+Soft box-shadow: 0 4px 20px rgba(0,0,0,0.08) on cards
+6.2 Layout Principles
+Mobile-first responsive design (360px → 1440px)
+Single scrollable page with sticky progress bar at top
+Each section occupies full viewport height (100vh) on desktop
+On mobile: sections stack vertically, full-width content
+No horizontal scroll; all simulations fit within viewport
+Large tap targets for all interactive elements (min 44x44px)
+High contrast text (WCAG AA compliance)
+All interactive elements have focus states for keyboard navigation
+6.3 Animation & Interaction
+Page load: hero elements animate in with stagger (0.1s delay each)
+Scroll trigger: sections animate in from bottom as user scrolls
+Shape drawing: SVG stroke-dashoffset animation for square outline
+Drag interactions: smooth follow cursor with snap-to-grid physics
+Tap feedback: immediate scale(0.95) press animation + sound
+Correct answer: scale up → green flash → confetti particles
+Wrong answer: horizontal shake (10px, 3 cycles) + red border flash
+All animations respect prefers-reduced-motion media query
+6.4 Accessibility Requirements
+All audio has visual equivalent (text + visual animation)
+Color is never the sole means of conveying information
+All images have descriptive aria-labels
+Minimum font size: 16px for body, 24px for instructions
+Mute/unmute button always visible in top-right corner
+All interactive elements keyboard accessible
+Screen reader compatible structure (ARIA roles)
+7. Content Requirements
+7.1 Narration Scripts
+The following narration lines must be recorded (matching equal-tau.vercel.app audio tone):
+Screen
+Narration Text
+Welcome
+Hello there, explorer! Today, we are going to learn about a very special shape — the SQUARE!
+Section 2 — Story
+Aanya looked at her window and noticed something. It had four sides... and they were ALL the same! Can you guess what shape that is?
+Section 3 — Sides
+Look at this square. Let's count its sides together! One, two, three, FOUR sides!
+Section 3 — Corners
+Now let's find the corners! One, two, three, FOUR corners! A square always has four corners.
+Section 3 — Equal
+Here's the most important thing about a square — ALL its sides are EQUAL. They are the same length!
+Section 5 — Build
+Now it's YOUR turn! Drag the tiles onto the grid to build a square. Make sure all the sides match!
+Section 6 — Spot
+Time to go on a shape hunt! Can you find all the squares hiding on the screen? Tap each one you find!
+Correct Answer SFX
+Wonderful! / Great job! / You got it! / Superstar! / That's right!
+Wrong Answer SFX
+Oops, not quite! Let's try again. / Hmm, look carefully! / You can do it!
+Completion
+AMAZING! You are now a Square Expert! You learned that a square has 4 equal sides and 4 corners. Well done!
+7.2 Visual Content Checklist
+Animated square SVG (stroke animation, corner markers, side labels)
+20+ real-world square object illustrations (global, culturally diverse)
+Mascot character (Intellia avatar) in multiple poses: wave, point, celebrate, think
+Drag-and-drop tile assets (colored unit squares for grid simulation)
+Mixed shape library: circle, triangle, rectangle, pentagon SVGs (for sorting/spotting)
+Background patterns: soft geometric (squares!) subtle pattern on hero
+Star/trophy/confetti assets for celebration
+Progress bar component with 4-phase indicator
+8. Functional Requirements
+8.1 Core Features — Must Have
+ID
+Requirement
+FR-01
+Scroll-gated lesson flow: each section unlocks after interaction in previous
+FR-02
+Animated SVG square with side-by-side counting simulation
+FR-03
+Drag-and-drop tile builder simulation on dot grid
+FR-04
+Tap-to-identify shapes simulation (randomized shape positions and colors)
+FR-05
+5–7 randomized practice questions per session drawn from 30+ question pool
+FR-06
+Audio narration for all major transitions and interactions
+FR-07
+Mute/unmute toggle persistent across session
+FR-08
+Star earning and display system (top bar)
+FR-09
+Celebratory completion screen with summary
+FR-10
+Responsive layout: works on tablet (768px+) and desktop (1024px+)
+FR-11
+Progress bar showing Learn / Explore / Practice / Celebrate phases
+FR-12
+Hint system (3 hints per session) with audio + visual guide
+FR-13
+Wrong answer handling: gentle feedback, retry option, no session reset
+FR-14
+Correct answer handling: star award, encourage audio, next question auto-advance
+8.2 Nice-to-Have Features
+ID
+Requirement
+FR-15
+Parent/teacher view: post-session summary report (questions attempted, stars earned)
+FR-16
+Language toggle: English + one regional language (e.g., Tamil, Hindi, Mandarin)
+FR-17
+Badge share: generate shareable badge image
+FR-18
+Offline mode via Service Worker caching
+FR-19
+Session save: restore progress on page reload (localStorage)
+FR-20
+Leaderboard (class context): stars earned visible to teacher
+9. Non-Functional Requirements
+Requirement
+Specification
+NFR-01 — Performance
+Initial page load < 3 seconds on 4G. No layout shift (CLS < 0.1). FCP < 1.5s.
+NFR-02 — Accessibility
+WCAG 2.1 Level AA. All interactive elements keyboard navigable. Screen reader tested.
+NFR-03 — Browser Support
+Chrome 90+, Firefox 88+, Safari 14+, Edge 90+. iOS Safari 14+. Android Chrome 90+.
+NFR-04 — Device Support
+iPad (768px), standard laptop (1280px), large desktop (1440px). Touch + mouse.
+NFR-05 — Audio
+Web Audio API or HTML5 audio. Graceful degradation if audio blocked. No autoplay on page load.
+NFR-06 — Security
+No PII collected from children. COPPA compliant. No third-party tracking on lesson pages.
+NFR-07 — Uptime
+99.5% availability via Vercel/Netlify CDN hosting.
+NFR-08 — Animation
+60fps animations. GPU-accelerated where possible. prefers-reduced-motion respected.
+10. Success Metrics
+Metric
+Target
+Lesson Completion Rate
+> 75% of sessions reach Celebrate screen
+Average Stars Earned
+> 4 / 7 per session
+Time on Page
+15–25 minutes (indicates full engagement)
+Repeat Sessions
+> 30% of students play more than once (randomization drives replay)
+Correct Answer Rate
+> 70% overall on practice questions
+Audio Engagement
+> 80% of sessions have audio enabled
+Simulation Completion
+> 85% complete the Build-a-Square simulation
+NPS from Teachers
+> 8/10 rating on 'Would you use this in class?'
+11. Out of Scope — v1.0
+Other shapes (circle, rectangle — covered in Lessons 6.1 and 6.3)
+3D shapes (cubes, cuboids — higher grade content)
+Area and perimeter of squares (Grade 2+ content)
+User authentication / login system
+LMS integration (SCORM/xAPI) — future milestone
+Video content (animation-driven SVG used instead)
+Teacher dashboard (tracked as FR-15, future release)
+12. Appendix — Glossary
+Term
+Definition
+Square
+A 2D shape with 4 equal sides and 4 right-angle corners
+2D Shape
+A flat shape with length and width but no depth
+Vertex / Corner
+The point where two sides of a shape meet
+Equal sides
+All sides have the same length
+Right angle
+A 90-degree angle (like the corner of a book)
+Simulation
+An interactive digital model the student can manipulate
+CPA
+Concrete–Pictorial–Abstract: a Singapore Math pedagogy progression
+Session
+One complete play-through of the lesson (randomized each time)
+Question Bank
+Pool of 30+ questions from which 5–7 are drawn per session
+End of Product Requirements Document — v1.0

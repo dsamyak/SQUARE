@@ -1,0 +1,777 @@
+⬛ SQUARES
+Grade 1 Geometry — Introduction to Shapes
+Gamified Simulation Website — Lesson 6.2
+TECHNICAL REQUIREMENTS DOCUMENT (TRD)
+Tech Stack
+React 18 + Vite 5 + TypeScript + Framer Motion + Tailwind CSS
+Version
+v1.0 — May 2026
+Repository
+github.com/dsamyak/equal (reference) → New: intelliasg/squares-lesson
+Deployment
+Vercel (Primary) | intelliasg.com/courses/grade-1-math/lessons/square/
+Audio Files
+Custom narration MP3s (child-safe, no license restrictions) + Web Audio API SFX
+1. System Architecture Overview
+1.1 Architecture Pattern
+The SQUARES lesson is a client-side Single Page Application (SPA) with zero backend requirements for the core lesson. All state is managed in-memory per session (React state). Optional persistence uses browser localStorage.
+Architecture: Component-based React SPA → Vite build → Static CDN (Vercel)
+┌─────────────────────────────────────────────────────────┐
+│                   SQUARES — React SPA                   │
+├──────────────────┬──────────────────┬───────────────────┤
+│   Lesson Engine  │  Simulation Layer │   Audio Engine    │
+│  (State Machine) │  (SVG + Canvas)   │  (Web Audio API)  │
+├──────────────────┼──────────────────┼───────────────────┤
+│  Question Engine │  Animation Layer  │  Asset Manager    │
+│  (Randomizer)    │  (Framer Motion)  │  (Lazy Loading)   │
+├──────────────────┴──────────────────┴───────────────────┤
+│              React Component Tree                        │
+├─────────────────────────────────────────────────────────┤
+│         Vite Build → Static Dist → Vercel CDN           │
+└─────────────────────────────────────────────────────────┘
+1.2 Key Architectural Decisions
+Decision
+Rationale
+No Backend
+Lesson is fully static. No API calls during lesson. Randomization runs client-side with Math.random() + seeded shuffle (Fisher-Yates).
+React + Vite
+Matches equal-tau.vercel.app reference codebase (github.com/dsamyak/equal). Fast HMR, tree-shaking, modern ESM.
+TypeScript
+All components, state, and question data typed. Prevents runtime errors in production.
+Framer Motion
+Primary animation library. Replaces CSS-only animation for complex sequencing (stagger, drag, spring physics).
+Tailwind CSS
+Utility-first CSS matching reference repo structure. JIT mode for minimal bundle.
+Web Audio API
+Custom SFX generated programmatically (oscillator nodes) + preloaded MP3 narration. No audio library dependency.
+SVG for Shapes
+All geometric shapes (square, circle, triangle, rectangle) rendered as inline SVG for crisp scaling at any DPI.
+localStorage
+Optional session persistence. Lesson progress and star count saved per lesson ID.
+2. Technology Stack
+2.1 Core Dependencies
+Package
+Version
+Purpose
+react
+18.3.x
+UI component framework
+react-dom
+18.3.x
+DOM rendering
+vite
+5.x
+Build tool & dev server
+typescript
+5.x
+Type safety
+framer-motion
+11.x
+Animations & drag interactions
+tailwindcss
+3.x
+Utility-first CSS
+@dnd-kit/core
+6.x
+Drag-and-drop for tile builder simulation
+@dnd-kit/sortable
+8.x
+Sortable/snap-to-grid support
+react-confetti
+6.x
+Celebration confetti animation
+zustand
+4.x
+Lightweight global state (lesson progress, stars, audio)
+clsx
+2.x
+Conditional className utility
+2.2 Development Tools
+Tool
+Purpose
+eslint + prettier
+Code quality & formatting (matching equal repo config)
+vitest
+Unit testing for question randomizer and state machine
+@testing-library/react
+Component integration tests
+storybook
+Component development and visual QA
+lighthouse-ci
+Automated performance and accessibility checks in CI
+2.3 Deployment Infrastructure
+Service
+Role
+Vercel
+Primary hosting — automatic deployments from GitHub main branch
+GitHub Actions
+CI/CD pipeline: lint → test → build → deploy
+Vercel Analytics
+Page view and performance monitoring (no PII)
+CDN
+Vercel Edge Network — global CDN for audio/image assets
+3. Project File Structure
+Mirroring the github.com/dsamyak/equal repository structure:
+squares-lesson/
+├── public/
+│   ├── audio/
+│   │   ├── narration/          # MP3 narration files per section
+│   │   │   ├── welcome.mp3
+│   │   │   ├── story-01.mp3
+│   │   │   ├── learn-sides.mp3
+│   │   │   ├── learn-corners.mp3
+│   │   │   ├── learn-equal.mp3
+│   │   │   ├── explore-build.mp3
+│   │   │   ├── explore-spot.mp3
+│   │   │   └── celebrate.mp3
+│   │   └── sfx/                # Short sound effects
+│   │       ├── correct.mp3
+│   │       ├── wrong.mp3
+│   │       ├── snap.mp3
+│   │       ├── fanfare.mp3
+│   │       └── star.mp3
+│   └── images/
+│       └── real-world/         # 20+ real-world square images
+├── src/
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── ProgressBar.tsx
+│   │   │   ├── AudioButton.tsx
+│   │   │   └── StarCounter.tsx
+│   │   ├── sections/
+│   │   │   ├── HeroSection.tsx
+│   │   │   ├── StorySection.tsx
+│   │   │   ├── LearnProperties.tsx
+│   │   │   ├── LearnRealWorld.tsx
+│   │   │   ├── ExploreBuild.tsx
+│   │   │   ├── ExploreSpot.tsx
+│   │   │   ├── PracticeSection.tsx
+│   │   │   └── CelebrateSection.tsx
+│   │   ├── simulations/
+│   │   │   ├── SquareBuilder.tsx      # Drag-and-drop grid builder
+│   │   │   ├── ShapeSpotter.tsx       # Tap-to-identify simulation
+│   │   │   ├── AnimatedSquare.tsx     # SVG square with animations
+│   │   │   └── SideCounter.tsx        # Interactive side counting
+│   │   ├── questions/
+│   │   │   ├── QuestionRenderer.tsx   # Dispatcher component
+│   │   │   ├── MCQQuestion.tsx
+│   │   │   ├── PropertyQuestion.tsx
+│   │   │   ├── CornerCountQuestion.tsx
+│   │   │   ├── TrueFalseQuestion.tsx
+│   │   │   ├── SortingQuestion.tsx
+│   │   │   └── ComparisonQuestion.tsx
+│   │   └── ui/
+│   │       ├── ShapeCard.tsx
+│   │       ├── RealWorldCard.tsx
+│   │       ├── FeedbackOverlay.tsx
+│   │       └── HintBubble.tsx
+│   ├── engine/
+│   │   ├── lessonState.ts        # Zustand store
+│   │   ├── questionBank.ts       # All 30+ question definitions
+│   │   ├── randomizer.ts         # Fisher-Yates shuffle + session generator
+│   │   └── audioEngine.ts        # Audio preload + playback manager
+│   ├── data/
+│   │   ├── realWorldObjects.ts   # 20+ square objects with metadata
+│   │   ├── shapes.ts             # SVG path data for all shapes
+│   │   └── narrationMap.ts       # Section → audio file mapping
+│   ├── hooks/
+│   │   ├── useAudio.ts
+│   │   ├── useProgress.ts
+│   │   ├── useQuestionSession.ts
+│   │   └── useSimulation.ts
+│   ├── styles/
+│   │   └── globals.css           # Tailwind base + custom tokens
+│   ├── App.tsx
+│   └── main.tsx
+├── tailwind.config.ts
+├── vite.config.ts
+├── tsconfig.json
+└── package.json
+4. Lesson State Machine
+4.1 Global State (Zustand Store)
+// src/engine/lessonState.ts
+type Phase = 'idle' | 'hero' | 'story' | 'learn' | 'explore' | 'practice' | 'celebrate';
+interface LessonState {
+  phase: Phase;
+  stars: number;
+  streak: number;
+  hintsUsed: number;
+  questionsAnswered: number;
+  questionsCorrect: number;
+  audioEnabled: boolean;
+  sessionQuestions: Question[];  // Randomized per session
+  currentQuestionIndex: number;
+  completedSections: Set<string>;
+  
+  // Actions
+  advancePhase: () => void;
+  awardStar: (count?: number) => void;
+  incrementStreak: () => void;
+  resetStreak: () => void;
+  useHint: () => void;
+  completeSection: (id: string) => void;
+  answerQuestion: (correct: boolean) => void;
+  toggleAudio: () => void;
+  initSession: () => void;  // Called on mount; generates randomized questions
+}
+4.2 Phase Transition Rules
+Transition
+Trigger
+idle → hero
+On component mount; auto-transition after 500ms
+hero → story
+User clicks 'Start Learning' button
+story → learn
+All story cards scrolled through / 'Continue' tapped
+learn → explore
+Both learn sub-sections (properties + real world) completed
+explore → practice
+Both simulations (build + spot) completed successfully
+practice → celebrate
+All session questions answered (correct or exhausted)
+celebrate → idle
+'Try Again' tapped; re-initializes session with new random questions
+5. Question Randomization Engine
+5.1 Question Bank Structure
+// src/engine/questionBank.ts
+type QuestionType = 
+  | 'mcq-identification'      // Which is a square?
+  | 'property-count'          // How many sides?
+  | 'corner-count'            // Count the corners interactively
+  | 'true-false'              // True/False statements
+  | 'real-world-sort'         // Drag objects to Square / Not Square bins
+  | 'equal-sides-compare';    // Which has equal sides?
+interface Question {
+  id: string;
+  type: QuestionType;
+  weight: number;             // Sampling weight (higher = more likely)
+  generate: () => GeneratedQuestion;  // Factory function for randomized instance
+}
+interface GeneratedQuestion {
+  id: string;
+  type: QuestionType;
+  prompt: string;
+  audioPromptKey: string;
+  options?: GeneratedOption[];  // For MCQ/T-F
+  correctAnswer: string | string[];
+  explanation: string;          // Audio + text for after answer
+  hint: string;
+}
+5.2 Session Generation Algorithm
+// src/engine/randomizer.ts
+/**
+ * Fisher-Yates shuffle — cryptographically weak but sufficient for educational randomization.
+ * For true unpredictability per session, seed with Date.now() % 1000.
+ */
+function fisherYatesShuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+/**
+ * Generates a session question set:
+ * - Session length: randomly 5, 6, or 7 questions
+ * - Guaranteed 1x mcq-identification, 1x property-count, 1x corner-count
+ * - Remaining slots: weighted random from remaining types
+ * - Each question generated via its factory (values randomized within)
+ */
+export function generateSession(): GeneratedQuestion[] {
+  const sessionLength = [5, 6, 7][Math.floor(Math.random() * 3)];
+  
+  // Core required questions (always included)
+  const required: QuestionType[] = [
+    'mcq-identification', 
+    'property-count', 
+    'corner-count'
+  ];
+  
+  // Fill remaining slots from weighted pool
+  const optional: QuestionType[] = [
+    'true-false', 'true-false',          // weight 2
+    'real-world-sort', 'real-world-sort', // weight 2
+    'equal-sides-compare',                // weight 1
+  ];
+  
+  const fillerCount = sessionLength - required.length;
+  const shuffledOptional = fisherYatesShuffle(optional).slice(0, fillerCount);
+  
+  const allTypes = fisherYatesShuffle([...required, ...shuffledOptional]);
+  
+  return allTypes.map(type => {
+    const question = QUESTION_BANK.find(q => q.type === type)!;
+    return question.generate();  // Each generate() call produces fresh random values
+  });
+}
+5.3 Shape Randomization Parameters
+Parameter
+Method
+Spec
+Shape Color
+8-color accessible palette
+#FF6B6B, #4ECDC4, #45B7D1, #96CEB4, #FFEAA7, #DDA0DD, #98D8C8, #F7DC6F
+Shape Size
+Random within bounds
+Square: 80–160px; Others: 60–140px
+Shape Position
+Grid-based random
+No overlap; min 20px margin from edge
+Shape Rotation
+Random for non-square shapes
+0°, 15°, 30°, 45° (squares always 0°)
+Options Order
+Shuffled per question
+Fisher-Yates on options array
+Real-world objects
+Session pool without replacement
+20+ items; max 8 shown per session
+6. Simulation Technical Specifications
+6.1 Simulation 1: Square Builder (Drag-and-Drop Grid)
+// src/components/simulations/SquareBuilder.tsx
+// Uses: @dnd-kit/core + @dnd-kit/utilities
+interface GridCell {
+  id: string;       // "row-col" format e.g. "2-3"
+  row: number;
+  col: number;
+  occupied: boolean;
+  tileColor?: string;
+}
+interface BuilderState {
+  grid: GridCell[][];    // 6x6 grid
+  placedTiles: PlacedTile[];
+  currentChallenge: 2 | 3 | 4;  // Square size target
+  isComplete: boolean;
+  validation: ValidationResult;
+}
+interface ValidationResult {
+  formed: boolean;
+  sidesEqual: boolean;
+  sideLength: number | null;
+  incorrectSides: string[];  // IDs of sides that are wrong length
+}
+Grid validation algorithm:
+On each tile placement, scan the grid for the largest contiguous rectangular region of occupied cells
+Calculate bounding box of occupied region: width = columns span, height = rows span
+Square condition: width === height AND all cells within bounding box are occupied
+If width !== height: highlight the longer side in red + audio hint
+Valid square: trigger completion animation + advance challenge level
+6.2 Simulation 2: Shape Spotter (Tap-to-Identify)
+// src/components/simulations/ShapeSpotter.tsx
+interface SpotterShape {
+  id: string;
+  type: 'square' | 'circle' | 'triangle' | 'rectangle' | 'pentagon';
+  x: number;           // % position (0–85)
+  y: number;           // % position (0–80)
+  size: number;        // px (60–140)
+  color: string;       // from 8-color palette
+  rotation: number;    // degrees (0 for squares; random for others)
+  isFound: boolean;
+  isWrong: boolean;    // Transient state for shake animation
+}
+// Generation rules:
+// - Total shapes: randomly 6, 7, 8, or 9
+// - Squares: randomly 2, 3, or 4
+// - Non-squares: fill remainder (mix of all other types)
+// - Positions: generated with collision detection (min distance 80px between centers)
+// - Colors: no two adjacent shapes same color
+6.3 SVG Animated Square (Learn Section)
+// src/components/simulations/AnimatedSquare.tsx
+// Pure SVG with CSS animation — no canvas
+// Animation sequence (orchestrated via Framer Motion):
+// 1. Square border draws itself: stroke-dashoffset 400 → 0 (1.5s)
+// 2. Side 1 highlights orange: simultaneous label appears with count-up
+// 3. Sides 2-4 animate in sequence (500ms each)
+// 4. Corner dots appear: scale 0 → 1 with spring (each 200ms stagger)
+// 5. Side labels pulse with bounce
+// 6. Resize slider appears: student drags to scale square uniformly
+// SVG structure:
+<svg viewBox="0 0 300 300">
+  <rect id="square" x="50" y="50" width="200" height="200"
+    stroke="#6C63FF" strokeWidth="4" fill="rgba(108,99,255,0.1)"
+    strokeDasharray="800" strokeDashoffset="800" />
+  
+  {/* 4 side highlight overlays — animated independently */}
+  <line id="side-top" ... />
+  <line id="side-right" ... />
+  <line id="side-bottom" ... />
+  <line id="side-left" ... />
+  
+  {/* 4 corner markers */}
+  <circle id="corner-tl" cx="50" cy="50" r="8" fill="#FF6B6B" />
+  ...
+  
+  {/* Side length labels */}
+  <text id="label-top" ...>1</text>
+  ...
+</svg>
+7. Audio Engine Architecture
+7.1 Audio Manager
+// src/engine/audioEngine.ts
+class AudioEngine {
+  private narrationBuffers: Map<string, AudioBuffer> = new Map();
+  private sfxBuffers: Map<string, AudioBuffer> = new Map();
+  private context: AudioContext | null = null;
+  private muted: boolean = false;
+  
+  async preload(keys: string[]): Promise<void> {
+    // Preloads all narration MP3s for current section
+    // Uses fetch() + decodeAudioData for Web Audio API
+  }
+  
+  async playNarration(key: string): Promise<void> {
+    // Plays narration, returns Promise that resolves on end
+    // Stops any currently playing narration before starting
+  }
+  
+  playSFX(type: 'correct' | 'wrong' | 'snap' | 'fanfare' | 'star'): void {
+    // Non-blocking; multiple SFX can overlap
+    // Fallback: programmatic oscillator if MP3 fails to load
+  }
+  
+  setMuted(muted: boolean): void { this.muted = muted; }
+  
+  // Fallback SFX using Web Audio API oscillators (no file dependency)
+  private generateCorrectSFX(ctx: AudioContext): void {
+    // C5 → E5 → G5 arpeggio, 80ms each, sine wave, gain ramp
+  }
+  private generateWrongSFX(ctx: AudioContext): void {
+    // Low D3, 200ms, slight vibrato, soft gain
+  }
+}
+7.2 Audio File Specifications
+File
+Duration
+Purpose
+welcome.mp3
+3–5 seconds
+Welcome narration — hero screen
+story-01.mp3
+8–12 seconds
+Story: Aanya's room scene
+learn-sides.mp3
+10–15 seconds
+Counting sides animation
+learn-corners.mp3
+8–12 seconds
+Counting corners animation
+learn-equal.mp3
+6–10 seconds
+Equal sides explanation
+explore-build.mp3
+8–12 seconds
+Build simulation instructions
+explore-spot.mp3
+6–8 seconds
+Spot simulation instructions
+celebrate.mp3
+5–8 seconds
+Completion celebration
+correct.mp3
+< 1 second
+Correct answer SFX
+wrong.mp3
+< 1 second
+Wrong answer SFX
+snap.mp3
+< 0.5 seconds
+Tile snap SFX
+fanfare.mp3
+2–3 seconds
+Phase completion fanfare
+star.mp3
+< 1 second
+Star award chime
+All audio files: MP3, 44.1kHz, 128kbps, mono. Narration recorded by professional voice artist. SFX generated via synthesizer or royalty-free library with child-safe content confirmation.
+8. Component Technical Specifications
+8.1 ProgressBar Component
+// src/components/layout/ProgressBar.tsx
+// Sticky top bar — always visible during lesson
+interface ProgressBarProps {
+  phase: Phase;
+  stars: number;
+  audioEnabled: boolean;
+  onToggleAudio: () => void;
+}
+// Visual: 4 pill segments: [Learn] [Explore] [Practice] [Celebrate]
+// Active phase: filled gradient (purple); completed: teal; upcoming: gray
+// Stars displayed right-aligned: ⭐ {count}
+// Audio button top-right: speaker icon with mute state
+// Height: 56px sticky; z-index: 1000
+// Framer Motion: animate phase transitions with spring
+8.2 QuestionRenderer Component
+// src/components/questions/QuestionRenderer.tsx
+// Dispatches to correct question component based on type
+export function QuestionRenderer({ question, onAnswer }: Props) {
+  const components: Record<QuestionType, React.FC<QuestionProps>> = {
+    'mcq-identification': MCQQuestion,
+    'property-count': PropertyQuestion,
+    'corner-count': CornerCountQuestion,
+    'true-false': TrueFalseQuestion,
+    'real-world-sort': SortingQuestion,
+    'equal-sides-compare': ComparisonQuestion,
+  };
+  
+  const Component = components[question.type];
+  
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div key={question.id} initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -30 }}>
+        <Component question={question} onAnswer={onAnswer} />
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+8.3 FeedbackOverlay Component
+// src/components/ui/FeedbackOverlay.tsx
+// Displayed for 1500ms after each answer
+interface FeedbackState {
+  visible: boolean;
+  correct: boolean;
+  message: string;        // e.g. "Great job! That's a square!" 
+  starsDelta: number;     // Stars earned this answer
+}
+// Correct: green flash overlay + ✅ icon + message + star burst animation
+// Wrong:   red flash overlay + ❌ icon + gentle message + shake animation on question card
+// Auto-dismisses after 1500ms; no user action required
+// Audio plays simultaneously (not blocked by overlay)
+9. Performance Requirements
+9.1 Core Web Vitals Targets
+Metric
+Target
+LCP (Largest Contentful Paint)
+< 1.5s on 4G connection
+FID / INP (Interaction)
+< 100ms for all tap/click responses
+CLS (Cumulative Layout Shift)
+< 0.05 (no layout jumping)
+FCP (First Contentful Paint)
+< 1.0s
+TTI (Time to Interactive)
+< 2.5s
+Total Bundle Size (gzipped)
+< 200KB JS; < 50KB CSS
+Audio preload strategy
+Preload next section's audio during current section render
+Image optimization
+WebP format; lazy loaded; max 100KB per image
+9.2 Code Splitting Strategy
+// vite.config.ts — manual chunk splitting
+export default defineConfig({
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'animation': ['framer-motion'],
+          'dnd': ['@dnd-kit/core', '@dnd-kit/sortable'],
+          'lesson-engine': ['./src/engine/lessonState', './src/engine/randomizer'],
+        }
+      }
+    }
+  }
+});
+// Each section component lazy-loaded:
+const ExploreBuild = lazy(() => import('./sections/ExploreBuild'));
+const PracticeSection = lazy(() => import('./sections/PracticeSection'));
+10. Testing Strategy
+10.1 Unit Tests (Vitest)
+Module
+Test Cases
+randomizer.ts
+Test 1000 sessions: verify all required question types present; no out-of-range values; no consecutive duplicate types
+questionBank.ts
+Each question generator produces valid GeneratedQuestion; correct answer always in options for MCQ
+lessonState.ts
+Phase transitions follow correct order; stars never negative; hints capped at 3
+audioEngine.ts
+Graceful fallback when AudioContext unavailable; mute state persists across calls
+validation (SquareBuilder)
+Grid validator correctly identifies 2x2, 3x3, 4x4 squares; rejects non-square rectangles and L-shapes
+10.2 Component Tests (@testing-library/react)
+MCQQuestion: renders 4 options; correct tap triggers onAnswer(true); wrong tap triggers onAnswer(false)
+TrueFalseQuestion: TRUE/FALSE buttons render; correct logic verified for all 12 statement types
+ProgressBar: renders correct active phase; star count updates on store change
+FeedbackOverlay: appears on answer; auto-dismisses after 1500ms
+ShapeSpotter: all generated shapes render; tap on square triggers found state; tap on non-square triggers shake
+10.3 Accessibility Tests
+axe-core automated: run on every component in Storybook
+Keyboard navigation: all interactive elements reachable via Tab; Enter/Space activate
+Screen reader: VoiceOver (iOS) + TalkBack (Android) manual testing on each section
+Color contrast: all text/background combinations verified against WCAG AA (4.5:1 ratio)
+prefers-reduced-motion: animations disabled when system setting active
+10.4 End-to-End Tests
+Full lesson completion flow: Hero → Story → Learn → Explore → Practice → Celebrate
+Question randomization: 10 sessions generate different question orders
+Audio mute: toggle persists across section transitions
+Mobile viewport (375px): all interactions work without horizontal scroll
+Try Again: new session generates new question set
+11. CI/CD Pipeline
+# .github/workflows/deploy.yml
+name: CI/CD — Squares Lesson
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '20', cache: 'npm' }
+      - run: npm ci
+      - run: npm run lint           # ESLint + TypeScript check
+      - run: npm run test           # Vitest unit tests
+      - run: npm run test:components # @testing-library tests
+      - run: npm run build          # Vite production build
+      
+  lighthouse:
+    needs: quality
+    runs-on: ubuntu-latest
+    steps:
+      - run: npm run build
+      - uses: treosh/lighthouse-ci-action@v11
+        with:
+          urls: 'http://localhost:4173/'
+          budgetPath: '.lighthouserc.json'
+          # Enforces: LCP < 1500ms, CLS < 0.05, FCP < 1000ms
+          
+  deploy:
+    needs: [quality, lighthouse]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+12. Security & Compliance
+12.1 Child Safety Compliance (COPPA / GDPR-K)
+Requirement
+Implementation
+No PII collected
+No name, email, location, or device ID stored or transmitted
+No cookies
+Session state in memory only; optional localStorage keyed by lesson ID (no user ID)
+No analytics tracking
+Vercel Analytics used only for aggregate page views; no user-level tracking
+No third-party ads
+Zero advertising scripts on lesson page
+No social login
+No authentication required to use the lesson
+Content safety
+All images, audio, and text reviewed for age appropriateness (5–7 years)
+No external API calls
+Lesson is fully self-contained; no runtime network requests (except audio/image assets from own CDN)
+12.2 Content Security Policy
+# Vercel headers — vercel.json
+{
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self';" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}
+13. Design Token Reference
+13.1 Tailwind Configuration
+// tailwind.config.ts — matching equal-tau.vercel.app design system
+export default {
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          purple:  '#6C63FF',   // Primary CTA, active states
+          coral:   '#FF6B6B',   // Highlights, wrong answer
+          teal:    '#4ECDC4',   // Correct answer, success
+          yellow:  '#FFE66D',   // Stars, celebration
+          blue:    '#45B7D1',   // Secondary accent
+          green:   '#96CEB4',   // Explore section
+        },
+        bg: {
+          page:    '#F8F9FF',   // Page background
+          card:    '#FFFFFF',   // Card background
+          muted:   '#F1F5F9',   // Muted/disabled state
+        },
+        text: {
+          primary:  '#1E293B',  // Main text
+          muted:    '#64748B',  // Supporting text
+          inverse:  '#FFFFFF',  // Text on dark bg
+        }
+      },
+      fontFamily: {
+        sans: ['Nunito', 'Poppins', 'system-ui', 'sans-serif'],
+        mono: ['Consolas', 'monospace'],
+      },
+      fontSize: {
+        'hero':  ['3rem',   { lineHeight: '1.1', fontWeight: '800' }],
+        'title': ['2rem',   { lineHeight: '1.2', fontWeight: '700' }],
+        'body':  ['1.125rem', { lineHeight: '1.6', fontWeight: '400' }],
+        'child': ['1.25rem', { lineHeight: '1.5', fontWeight: '600' }],
+      },
+      borderRadius: {
+        'card':   '16px',
+        'btn':    '12px',
+        'pill':   '9999px',
+      },
+      boxShadow: {
+        'card': '0 4px 20px rgba(0, 0, 0, 0.08)',
+        'btn':  '0 4px 12px rgba(108, 99, 255, 0.3)',
+        'hover':'0 8px 30px rgba(0, 0, 0, 0.12)',
+      },
+      animation: {
+        'bounce-slow': 'bounce 2s infinite',
+        'pulse-glow':  'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite',
+        'float':       'float 3s ease-in-out infinite',
+      }
+    }
+  }
+};
+14. Pre-Launch Checklist
+14.1 Development Checklist
+All 6 question types implemented and tested
+Question bank contains minimum 30 questions (5 per type)
+Randomizer tested for 500+ sessions — no crashes, correct distribution
+All 3 challenge levels in SquareBuilder working (2x2, 3x3, 4x4)
+ShapeSpotter generates valid non-overlapping layouts for all session sizes
+AnimatedSquare sequence completes correctly on all viewport sizes
+Audio preloading verified — no audio plays before user interaction
+Mute state persists across all section transitions
+Star counter updates correctly on correct answers
+Hint system depletes after 3 uses per session
+CelebrateSection shows correct star total and summary
+'Try Again' resets state and generates new session
+14.2 Quality Checklist
+Lighthouse score: Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 95
+axe-core: 0 critical accessibility violations
+All unit tests passing (vitest run)
+All component tests passing
+Bundle size within targets (< 200KB gzipped JS)
+All audio files < 200KB each; total audio < 3MB
+All images WebP format; lazy loaded
+CSP headers verified in production
+No console errors or warnings in production build
+Tested on: Chrome, Firefox, Safari (desktop + mobile)
+Tested on: iPad Air, iPhone 14, Android tablet, 1080p desktop, 1440p desktop
+14.3 Content Checklist
+All 8 narration audio files recorded and approved
+All 5 SFX files produced and approved
+20+ real-world object images sourced and licensed (or created)
+All text content reviewed for Grade 1 reading level
+All narration scripts reviewed for accuracy and tone
+Real-world objects represent minimum 10 distinct countries/cultures
+All images free of inappropriate content (reviewed)
+Mascot character artwork created in all required poses (wave, point, celebrate, think)
+End of Technical Requirements Document — v1.0
