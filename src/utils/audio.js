@@ -29,65 +29,99 @@ export const sounds = {
   celebrate: () => playSFX('celebrate'),
 };
 
-// ─── Speech Synthesis (voices preload) ───────────────────────
-let voicesLoaded = false;
-let cachedVoices = [];
+// ─── ElevenLabs Settings ──────────────────────────────────────────
+const ELEVENLABS_API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY;
+const VOICE_ID = 'Xb7hH8MSUJpSbSDYk0k2'; // Alice
+const MODEL_ID = 'eleven_multilingual_v2';
+const elevenLabsCache = {}; // Cache for dynamically fetched blobs
 
-function loadVoices() {
-  if (voicesLoaded) return;
-  cachedVoices = window.speechSynthesis?.getVoices() || [];
-  if (cachedVoices.length > 0) voicesLoaded = true;
-}
+const styleSettings = {
+  statement: { stability: 0.65, similarity_boost: 0.75, style: 0.3 },
+  question: { stability: 0.55, similarity_boost: 0.80, style: 0.5 },
+  encouragement: { stability: 0.50, similarity_boost: 0.70, style: 0.7 },
+  emphasis: { stability: 0.75, similarity_boost: 0.85, style: 0.2 },
+  thinking: { stability: 0.60, similarity_boost: 0.75, style: 0.4 },
+  celebration: { stability: 0.45, similarity_boost: 0.65, style: 0.8 }
+};
 
-// Browsers fire this event when voices are ready
-if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-  window.speechSynthesis.onvoiceschanged = () => {
-    cachedVoices = window.speechSynthesis.getVoices();
-    voicesLoaded = true;
-  };
-  // Also try immediately (some browsers resolve synchronously)
-  loadVoices();
-}
-
-function pickVoice() {
-  if (!voicesLoaded) loadVoices();
-  // Prefer a natural-sounding English voice
-  return (
-    cachedVoices.find(v => v.lang.startsWith('en') && v.name.includes('Google')) ||
-    cachedVoices.find(v => v.lang.startsWith('en') && v.name.includes('Female')) ||
-    cachedVoices.find(v => v.lang.startsWith('en-US')) ||
-    cachedVoices.find(v => v.lang.startsWith('en')) ||
-    null
-  );
-}
-
-// ─── Playback state ──────────────────────────────────────────
-let currentAudio = null;   // Audio element or SpeechSynthesisUtterance
+// ─── Core Playback Engine ──────────────────────────────────────────
+let currentAudio = null;   
 let cancelled = false;
+let globalAudioEnabled = true;
 
 /**
- * Speaks a text segment using its pre-generated MP3, falling back to browser TTS.
+ * Update the global audio enabled state from the React context.
  */
-export async function speak(text) {
-  if (cancelled) return;
-
-  const url = audioMap[text] || null;
-
-  if (url) {
-    // Try MP3 first
-    try {
-      await playMP3(url, text);
-      return;
-    } catch (_) {
-      // MP3 failed (missing file, autoplay blocked, etc.) → fall through to TTS
-    }
-  }
-
-  // Fallback: browser text-to-speech
-  await speakTTS(text);
+export function setAudioEnabled(enabled) {
+  globalAudioEnabled = enabled;
+  if (!enabled) stopNarration();
 }
 
-function playMP3(url, text) {
+/**
+ * Gets the audio URL for a text segment. Checks static map, then memory cache, then dynamically fetches.
+ */
+export async function getAudioUrl(text, style = 'statement') {
+  // 1. Static Cache Check
+  if (audioMap[text]) {
+    return audioMap[text];
+  }
+  
+  // 2. Dynamic Memory Cache Check
+  if (elevenLabsCache[text]) {
+    return elevenLabsCache[text];
+  }
+  
+  // 3. Dynamic Request to ElevenLabs
+  if (!ELEVENLABS_API_KEY || ELEVENLABS_API_KEY === 'your_api_key_here') {
+    console.warn("ElevenLabs API Key missing or invalid. Skipping dynamic audio generation.");
+    return null;
+  }
+  
+  try {
+    const settings = styleSettings[style] || styleSettings.statement;
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'xi-api-key': ELEVENLABS_API_KEY
+      },
+      body: JSON.stringify({
+        text: text,
+        model_id: MODEL_ID,
+        voice_settings: {
+          stability: settings.stability,
+          similarity_boost: settings.similarity_boost,
+          style: settings.style,
+          use_speaker_boost: true
+        }
+      })
+    });
+
+    if (!response.ok) throw new Error(`ElevenLabs API failed with status ${response.status}`);
+    
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    elevenLabsCache[text] = url; // Cache the dynamically generated audio URL
+    return url;
+  } catch (err) {
+    console.error("Dynamic audio generation failed:", err);
+    return null;
+  }
+}
+
+/**
+ * Preloads the audio for a list of segments.
+ */
+export async function preloadNarration(segments) {
+  if (!globalAudioEnabled || !segments) return;
+  for (const segment of segments) {
+    if (!audioMap[segment.text] && !elevenLabsCache[segment.text]) {
+      getAudioUrl(segment.text, segment.style).catch(() => {});
+    }
+  }
+}
+
+function playMP3(url) {
   return new Promise((resolve, reject) => {
     if (cancelled) return resolve();
 
@@ -107,29 +141,23 @@ function playMP3(url, text) {
   });
 }
 
-function speakTTS(text) {
-  return new Promise((resolve) => {
-    if (cancelled) return resolve();
-    if (!('speechSynthesis' in window)) return resolve();
-
-    // Cancel any lingering browser speech
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.volume = 0.8;
-    utterance.rate = 0.9;
-    utterance.pitch = 1.1;
-
-    const voice = pickVoice();
-    if (voice) utterance.voice = voice;
-
-    currentAudio = utterance;
-
-    utterance.onend = () => { currentAudio = null; resolve(); };
-    utterance.onerror = () => { currentAudio = null; resolve(); };
-
-    window.speechSynthesis.speak(utterance);
-  });
+/**
+ * Speaks a single text segment using the resolved audio URL.
+ */
+export async function speak(segment) {
+  if (cancelled || !globalAudioEnabled) return;
+  
+  const text = typeof segment === 'string' ? segment : segment.text;
+  const style = typeof segment === 'string' ? 'statement' : (segment.style || 'statement');
+  
+  const url = await getAudioUrl(text, style);
+  if (url && !cancelled) {
+    try {
+      await playMP3(url);
+    } catch (_) {
+      // Ignored
+    }
+  }
 }
 
 /**
@@ -144,17 +172,15 @@ export function stopNarration() {
     }
     currentAudio = null;
   }
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-  }
 }
 
 /**
- * Plays an array of narration segments sequentially.
+ * Plays an array of narration segments sequentially with eager preloading.
  * Returns a handle with a cancel() method.
  */
-export function narrate(segments, audioEnabled = true) {
-  if (!audioEnabled || !segments || segments.length === 0) {
+export function narrate(segments, localAudioEnabled = true) {
+  // Respect both the local parameter (for backwards compatibility) and global state
+  if (!globalAudioEnabled || !localAudioEnabled || !segments || segments.length === 0) {
     return { cancel() {} };
   }
 
@@ -164,10 +190,20 @@ export function narrate(segments, audioEnabled = true) {
   const run = async () => {
     for (let i = 0; i < segments.length; i++) {
       if (cancelled || aborted) break;
+      
+      // Eagerly preload the next segment
+      if (i + 1 < segments.length) {
+        const next = segments[i + 1];
+        const nextText = typeof next === 'string' ? next : next.text;
+        const nextStyle = typeof next === 'string' ? 'statement' : (next.style || 'statement');
+        getAudioUrl(nextText, nextStyle).catch(() => {});
+      }
+      
       try {
-        await speak(segments[i].text);
+        await speak(segments[i]);
       } catch (e) {
-        console.warn('[narrate] segment failed:', segments[i].text, e);
+        const text = typeof segments[i] === 'string' ? segments[i] : segments[i].text;
+        console.warn('[narrate] segment failed:', text, e);
       }
     }
   };
