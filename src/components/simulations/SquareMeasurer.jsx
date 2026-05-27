@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { sounds } from '../../utils/audio';
 
@@ -16,8 +16,18 @@ export default function SquareMeasurer({ onComplete }) {
   const measuredCount = Object.keys(measured).length;
   const allDone = measuredCount === 4;
 
+  useEffect(() => {
+    if (measuredCount === 4) {
+      const timer = setTimeout(() => {
+        sounds.celebrate();
+        if (onComplete) onComplete();
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [measuredCount, onComplete]);
+
   const handleMeasure = (sideKey) => {
-    if (measured[sideKey] || allDone) return;
+    if (measured[sideKey] || allDone || activeSide) return;
 
     setActiveSide(sideKey);
     sounds.click();
@@ -26,13 +36,6 @@ export default function SquareMeasurer({ onComplete }) {
     setTimeout(() => {
       setMeasured(prev => ({ ...prev, [sideKey]: true }));
       setActiveSide(null);
-
-      if (measuredCount + 1 === 4) {
-        setTimeout(() => {
-          sounds.celebrate();
-          onComplete();
-        }, 800);
-      }
     }, 600);
   };
 

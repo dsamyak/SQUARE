@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { sounds } from '../../utils/audio';
 
 const OBJECTS = [
   { id: 1, type: 'square', emoji: '🖼️', label: 'Picture Frame' },
@@ -17,12 +18,18 @@ export default function ShapeSpotter({ onComplete }) {
 
   const handleTap = (obj) => {
     if (obj.type === 'square' && !spotted.includes(obj.id)) {
+      sounds.correct();
       const newSpotted = [...spotted, obj.id];
       setSpotted(newSpotted);
       
       if (newSpotted.length === squareIds.length && onComplete) {
-        setTimeout(onComplete, 1000);
+        setTimeout(() => {
+          sounds.celebrate();
+          onComplete();
+        }, 1000);
       }
+    } else if (obj.type !== 'square') {
+      sounds.wrong();
     }
   };
 

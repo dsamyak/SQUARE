@@ -6,7 +6,13 @@ export default function SquareBuilder({ onComplete }) {
   // Let's do a drag-and-drop or tap-to-place simplified version.
   const [placed, setPlaced] = useState([]);
 
-  const targetPositions = [0, 1, 3, 4]; // Top-left 2x2 in a 3x3 grid
+  // valid 2x2 squares in a 3x3 grid
+  const validSquares = [
+    [0, 1, 3, 4],
+    [1, 2, 4, 5],
+    [3, 4, 6, 7],
+    [4, 5, 7, 8]
+  ];
   
   const handleTap = (index) => {
     if (placed.includes(index)) {
@@ -16,14 +22,14 @@ export default function SquareBuilder({ onComplete }) {
       setPlaced(newPlaced);
       
       // Check if they matched target
-      const isCorrect = targetPositions.every(t => newPlaced.includes(t)) && newPlaced.length === targetPositions.length;
+      const isCorrect = validSquares.some(sq => sq.every(t => newPlaced.includes(t)) && newPlaced.length === 4);
       if (isCorrect && onComplete) {
         setTimeout(onComplete, 1000);
       }
     }
   };
 
-  const isComplete = targetPositions.every(t => placed.includes(t)) && placed.length === targetPositions.length;
+  const isComplete = validSquares.some(sq => sq.every(t => placed.includes(t)) && placed.length === 4);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>

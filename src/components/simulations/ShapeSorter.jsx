@@ -18,10 +18,10 @@ export default function ShapeSorter({ onComplete }) {
     const binRect = binRef.current.getBoundingClientRect();
     const point = { x: info.point.x, y: info.point.y };
     
-    // Simple AABB collision check
+    // Simple AABB collision check, accounting for page scroll
     const isInsideBin = (
-      point.x >= binRect.left && point.x <= binRect.right &&
-      point.y >= binRect.top && point.y <= binRect.bottom
+      point.x >= binRect.left + window.scrollX && point.x <= binRect.right + window.scrollX &&
+      point.y >= binRect.top + window.scrollY && point.y <= binRect.bottom + window.scrollY
     );
 
     if (isInsideBin) {
