@@ -31,8 +31,8 @@
   /* Text */
   --white: #ffffff;
   --text-primary: #ffffff;
-  --text-secondary: rgba(255,255,255,0.7);
-  --text-muted: rgba(255,255,255,0.4);
+  --text-secondary: rgba(255,255,255,0.9);
+  --text-muted: rgba(255,255,255,0.75);
 
   /* Typography */
   --font-display: 'Fredoka', sans-serif;

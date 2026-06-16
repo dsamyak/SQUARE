@@ -93,7 +93,7 @@ button { font-family: var(--font-display); cursor: pointer; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
   padding: 16px 32px; border: none; border-radius: var(--radius-md);
-  font-family: var(--font-display); font-size: 1.1rem; font-weight: 600;
+  font-family: var(--font-display); font-size: 1.3rem; font-weight: 800;
   cursor: pointer; transition: var(--transition);
   box-shadow: var(--shadow-button); text-decoration: none; min-width: 160px;
 }
@@ -107,8 +107,8 @@ button { font-family: var(--font-display); cursor: pointer; }
 .btn-teal { background: linear-gradient(135deg, var(--teal), #00897b); color: white; }
 .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.3); color: var(--text-primary); }
 .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
-.btn-sm { padding: 10px 20px; font-size: 0.9rem; min-width: auto; }
-.btn-lg { padding: 20px 48px; font-size: 1.3rem; }
+.btn-sm { padding: 10px 20px; font-size: 1.1rem; min-width: auto; }
+.btn-lg { padding: 20px 48px; font-size: 1.6rem; font-weight: 900; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 /* ===== PROGRESS DOTS ===== */
@@ -160,16 +160,16 @@ button { font-family: var(--font-display); cursor: pointer; }
   backdrop-filter: blur(10px);
 }
 .intro-title {
-  font-family: var(--font-display); font-size: 3.5rem; font-weight: 700;
+  font-family: var(--font-display); font-size: 4.5rem; font-weight: 900; letter-spacing: 2px;
   color: var(--white); line-height: 1.2; margin-bottom: 8px;
   text-shadow: 0 0 40px rgba(124,92,191,0.5);
 }
 .intro-subtitle {
-  font-size: 1.3rem; color: var(--gold-light); font-weight: 600;
+  font-size: 1.6rem; color: var(--gold-light); font-weight: 800;
   margin-bottom: 16px; font-family: var(--font-display);
 }
 .intro-description {
-  font-size: 1rem; color: var(--text-secondary); max-width: 500px;
+  font-size: 1.2rem; color: var(--white); font-weight: 700; max-width: 500px;
   line-height: 1.7; margin-bottom: 40px;
 }
 .intro-journey-map {
@@ -186,8 +186,8 @@ button { font-family: var(--font-display); cursor: pointer; }
 }
 .intro-journey-step:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
 .intro-journey-icon { font-size: 1.8rem; }
-.intro-journey-label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
-.intro-journey-desc { font-size: 0.65rem; color: var(--text-muted); }
+.intro-journey-label { font-size: 0.9rem; font-weight: 800; color: var(--white); text-transform: uppercase; letter-spacing: 0.05em; }
+.intro-journey-desc { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); }
 .intro-journey-arrow { font-size: 1rem; color: var(--text-muted); }
 
 /* ===== WONDER SCREEN ===== */
@@ -198,10 +198,10 @@ button { font-family: var(--font-display); cursor: pointer; }
 }
 .wonder-emoji { font-size: 6rem; margin-bottom: 16px; animation: wobble 3s infinite ease-in-out; }
 .wonder-question {
-  font-family: var(--font-display); font-size: 2rem; color: var(--white);
+  font-family: var(--font-display); font-size: 2.8rem; font-weight: 900; color: var(--white);
   line-height: 1.4; margin-bottom: 12px;
 }
-.wonder-subtext { font-size: 1.1rem; color: var(--gold-light); margin-bottom: 32px; font-style: italic; }
+.wonder-subtext { font-size: 1.4rem; font-weight: 700; color: var(--gold-light); margin-bottom: 32px; font-style: italic; }
 .wonder-emoji-bg {
   position: absolute; font-size: 2.5rem; opacity: 0.12; pointer-events: none;
   animation: floatEmoji 6s infinite ease-in-out;
@@ -230,12 +230,12 @@ button { font-family: var(--font-display); cursor: pointer; }
   overflow: hidden; margin-bottom: 24px; border: 1px solid rgba(255,255,255,0.1);
 }
 .story-image { width: 100%; height: 100%; object-fit: cover; }
-.story-title { font-family: var(--font-display); font-size: 1.8rem; color: var(--gold); margin-bottom: 12px; }
-.story-text { font-size: 1.05rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px; }
+.story-title { font-family: var(--font-display); font-size: 2.4rem; font-weight: 900; color: var(--gold); margin-bottom: 12px; }
+.story-text { font-size: 1.3rem; font-weight: 700; color: var(--white); line-height: 1.7; margin-bottom: 16px; }
 .story-highlight {
   display: inline-block; padding: 10px 24px; border-radius: var(--radius-md);
   background: rgba(255,193,7,0.15); border: 1px solid rgba(255,193,7,0.3);
-  color: var(--gold-light); font-family: var(--font-display); font-size: 1.1rem;
+  color: var(--gold-light); font-family: var(--font-display); font-size: 1.4rem; font-weight: 900;
   margin-bottom: 16px;
 }
 .story-mascot {
@@ -273,14 +273,14 @@ button { font-family: var(--font-display); cursor: pointer; }
 .station-header {
   text-align: center; margin-bottom: 20px;
 }
-.station-header h2 { font-family: var(--font-display); font-size: 1.5rem; color: var(--white); }
+.station-header h2 { font-family: var(--font-display); font-size: 2.2rem; font-weight: 900; color: var(--white); }
 
 /* Counter take-away */
 .counter-grid {
   display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px;
 }
 .counter-item {
-  font-size: 2.5rem; cursor: pointer; transition: all 0.3s; position: relative;
+  font-size: 3.5rem; font-weight: 900; cursor: pointer; transition: all 0.3s; position: relative;
 }
 .counter-item.removed { opacity: 0.3; transform: scale(0.8); }
 .counter-item.next { cursor: pointer; animation: pulse 1s infinite; }
@@ -302,7 +302,7 @@ button { font-family: var(--font-display); cursor: pointer; }
   padding: 32px; width: 100%; position: relative; overflow: hidden;
 }
 .question-text {
-  font-family: var(--font-display); font-size: 1.6rem;
+  font-family: var(--font-display); font-size: 2.2rem; font-weight: 900;
   color: var(--white); text-align: center; margin-bottom: 24px; line-height: 1.4;
 }
 .options-grid { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 24px; }
@@ -310,7 +310,7 @@ button { font-family: var(--font-display); cursor: pointer; }
   padding: 14px 28px; border-radius: var(--radius-md);
   background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.15);
   color: var(--text-primary); font-family: var(--font-display);
-  font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: var(--transition);
+  font-size: 1.4rem; font-weight: 800; cursor: pointer; transition: var(--transition);
   min-width: 140px;
 }
 .option-btn:hover { border-color: var(--gold); background: rgba(255,193,7,0.1); transform: translateY(-2px); }
@@ -357,7 +357,7 @@ button { font-family: var(--font-display); cursor: pointer; }
 }
 .reflect-message {
   max-width: 80%; padding: 14px 20px; border-radius: var(--radius-md);
-  font-size: 0.95rem; line-height: 1.5; animation: fadeSlideIn 0.3s ease;
+  font-size: 1.2rem; font-weight: 700; line-height: 1.5; animation: fadeSlideIn 0.3s ease;
 }
 .reflect-message.user {
   align-self: flex-end; background: var(--teal); color: white;
@@ -391,8 +391,8 @@ button { font-family: var(--font-display); cursor: pointer; }
   border-radius: var(--radius-lg); padding: 32px; text-align: center;
   box-shadow: 0 0 30px rgba(255,193,7,0.2);
 }
-.score-title { font-family: var(--font-display); font-size: 1.8rem; color: var(--gold); margin-bottom: 12px; }
-.score-value { font-family: var(--font-display); font-size: 2.5rem; color: var(--white); margin-bottom: 8px; }
+.score-title { font-family: var(--font-display); font-size: 2.2rem; font-weight: 900; color: var(--gold); margin-bottom: 12px; }
+.score-value { font-family: var(--font-display); font-size: 3.5rem; font-weight: 900; color: var(--white); margin-bottom: 8px; }
 .star-display { display: flex; justify-content: center; gap: 8px; margin-bottom: 16px; }
 .star { font-size: 2.5rem; transition: var(--transition); }
 .star.earned { animation: starPop 0.4s ease; }
@@ -406,7 +406,7 @@ button { font-family: var(--font-display); cursor: pointer; }
 }
 .feedback-card {
   padding: 32px 48px; border-radius: var(--radius-xl);
-  font-family: var(--font-display); font-size: 2.5rem; font-weight: 700;
+  font-family: var(--font-display); font-size: 3.5rem; font-weight: 900;
   border: 4px solid white; box-shadow: 0 0 60px rgba(0,0,0,0.3);
 }
 .feedback-correct {
@@ -432,7 +432,7 @@ button { font-family: var(--font-display); cursor: pointer; }
 .speech-bubble {
   background: rgba(255,255,255,0.95); color: #1a1a2e;
   padding: 16px 20px; border-radius: var(--radius-md);
-  font-family: var(--font-display); font-size: 1.05rem;
+  font-family: var(--font-display); font-size: 1.3rem; font-weight: 700;
   max-width: 400px; position: relative; box-shadow: var(--shadow-card);
   border: 2px solid var(--purple-light);
 }
@@ -468,7 +468,7 @@ button { font-family: var(--font-display); cursor: pointer; }
 .sim-block:active { cursor: grabbing; }
 .sim-baseline { position: absolute; width: 1px; background: rgba(255,255,255,0.2); top: 0; bottom: 0; }
 .sim-label {
-  font-family: var(--font-display); font-size: 1.5rem; color: var(--gold);
+  font-family: var(--font-display); font-size: 2rem; font-weight: 900; color: var(--gold);
   animation: fadeSlideIn 0.3s ease;
 }
 
@@ -531,7 +531,7 @@ button { font-family: var(--font-display); cursor: pointer; }
 .world-card.locked:hover { transform: none; border-color: rgba(255,255,255,0.1); }
 .world-card.completed { border-color: var(--green); }
 .world-icon { font-size: 2.5rem; }
-.world-name { font-family: var(--font-display); font-size: 1.1rem; color: var(--white); }
+.world-name { font-family: var(--font-display); font-size: 1.4rem; font-weight: 800; color: var(--white); }
 .world-desc { font-size: 0.75rem; color: var(--text-muted); }
 .world-stars { font-size: 0.9rem; }
 
@@ -576,7 +576,7 @@ button { font-family: var(--font-display); cursor: pointer; }
   max-width: 600px;
 }
 .teach-back-q {
-  font-family: var(--font-display); font-size: 1.2rem; color: var(--white);
+  font-family: var(--font-display); font-size: 1.6rem; font-weight: 900; color: var(--white);
   text-align: center; margin-bottom: 20px; line-height: 1.5;
 }
 .teach-back-options { display: flex; flex-direction: column; gap: 10px; }
@@ -584,7 +584,7 @@ button { font-family: var(--font-display); cursor: pointer; }
   display: flex; align-items: center; gap: 12px;
   padding: 14px 20px; border-radius: var(--radius-md);
   background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
-  color: var(--text-primary); font-size: 1rem; cursor: pointer;
+  color: var(--text-primary); font-size: 1.2rem; font-weight: 700; cursor: pointer;
   transition: var(--transition);
 }
 .teach-back-option:hover { border-color: var(--gold); background: rgba(255,193,7,0.08); }
@@ -601,11 +601,11 @@ button { font-family: var(--font-display); cursor: pointer; }
   display: flex; align-items: center; gap: 12px;
   padding: 16px 24px; border-radius: var(--radius-md);
   border: 2px solid rgba(255,255,255,0.1); cursor: pointer;
-  transition: var(--transition); font-size: 1rem;
+  transition: var(--transition); font-size: 1.2rem; font-weight: 700;
 }
 .confidence-option:hover { transform: translateY(-2px); }
 .confidence-emoji { font-size: 2rem; }
-.confidence-label { font-family: var(--font-display); font-weight: 600; }
+.confidence-label { font-family: var(--font-display); font-weight: 800; font-size: 1.3rem; }
 
 /* ===== CERTIFICATE ===== */
 .certificate {
@@ -616,7 +616,7 @@ button { font-family: var(--font-display); cursor: pointer; }
   animation: bounceIn 0.6s ease;
 }
 .certificate-header { font-size: 0.8rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 8px; }
-.certificate-title { font-family: var(--font-display); font-size: 2rem; color: var(--white); margin-bottom: 8px; }
+.certificate-title { font-family: var(--font-display); font-size: 2.8rem; font-weight: 900; color: var(--white); margin-bottom: 8px; }
 .certificate-topic { font-size: 1.1rem; color: var(--gold-light); margin-bottom: 24px; }
 .certificate-stats {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;
