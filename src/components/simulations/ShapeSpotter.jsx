@@ -7,7 +7,7 @@ const OBJECTS = [
   { id: 2, type: 'circle', emoji: '🍪', label: 'Cookie' },
   { id: 3, type: 'square', emoji: '🪟', label: 'Window' },
   { id: 4, type: 'triangle', emoji: '🍕', label: 'Pizza Slice' },
-  { id: 5, type: 'square', emoji: '🧀', label: 'Cheese Slice' },
+  { id: 5, type: 'square', emoji: '📦', label: 'Cardboard Box' },
   { id: 6, type: 'rectangle', emoji: '📱', label: 'Phone' },
 ];
 
