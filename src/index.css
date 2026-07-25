@@ -7,6 +7,7 @@ html, body, #root {
   font-family: var(--font-body);
   color: var(--text-primary);
   background: linear-gradient(135deg, var(--bg-dark) 0%, var(--purple-deep) 40%, #1a0a3e 70%, #0d1b3e 100%);
+  background-attachment: fixed;
 }
 body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
@@ -36,7 +37,7 @@ button { font-family: var(--font-display); cursor: pointer; }
 
 /* ===== AUDIO TOGGLE ===== */
 .audio-toggle-btn {
-  position: fixed; top: 16px; right: 16px; z-index: 200;
+  position: fixed; top: 16px; left: 128px; z-index: 200;
   width: 44px; height: 44px; border-radius: 50%;
   border: 1px solid rgba(255,255,255,0.15);
   background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
