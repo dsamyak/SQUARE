@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { usePhase } from '../../hooks/usePhase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { narrate, stopNarration } from '../../utils/audio';
+import CharacterSpeech from '../ui/CharacterSpeech';
 
 const STORY_SLIDES = [
   {
@@ -69,31 +70,29 @@ export default function StoryPhase() {
               <img src={currentSlide.image} alt="Story visual" style={{ width: '100%', maxHeight: '450px', objectFit: 'contain', borderRadius: '16px' }} />
             </div>
             
-            <div className="story-content" style={{ textAlign: 'center' }}>
-              <p className="story-text">{currentSlide.text}</p>
+            <CharacterSpeech character="milo" text={currentSlide.text} position="left" />
               
-              <div className="story-nav">
-                <button 
-                  className="btn btn-secondary btn-sm" 
-                  onClick={() => setSlide(s => Math.max(0, s - 1))}
-                  disabled={slide === 0}
-                  style={{ minWidth: '100px' }}
-                >
-                  ← Back
-                </button>
-                <div className="progress-dots" style={{ margin: 0 }}>
-                  {STORY_SLIDES.map((_, i) => (
-                    <div key={i} className={`progress-dot ${i === slide ? 'active' : ''}`} />
-                  ))}
-                </div>
-                <button 
-                  className="btn btn-primary btn-sm" 
-                  onClick={handleNext}
-                  style={{ minWidth: '100px' }}
-                >
-                  {slide === STORY_SLIDES.length - 1 ? 'Start Simulating →' : 'Next →'}
-                </button>
+            <div className="story-nav">
+              <button 
+                className="btn btn-secondary btn-sm" 
+                onClick={() => setSlide(s => Math.max(0, s - 1))}
+                disabled={slide === 0}
+                style={{ minWidth: '100px' }}
+              >
+                ← Back
+              </button>
+              <div className="progress-dots" style={{ margin: 0 }}>
+                {STORY_SLIDES.map((_, i) => (
+                  <div key={i} className={`progress-dot ${i === slide ? 'active' : ''} ${i < slide ? 'completed' : ''}`} />
+                ))}
               </div>
+              <button 
+                className="btn btn-primary btn-sm" 
+                onClick={handleNext}
+                style={{ minWidth: '100px' }}
+              >
+                {slide === STORY_SLIDES.length - 1 ? 'Start Simulating →' : 'Next →'}
+              </button>
             </div>
           </motion.div>
         </AnimatePresence>

@@ -2,6 +2,7 @@ import React from 'react';
 import { usePhase } from './hooks/usePhase';
 import FloatingNumbers from './components/ui/FloatingNumbers';
 import AudioControl from './components/ui/AudioControl';
+import Popup from './components/ui/Popup';
 
 // Phase Components
 import IntroScreen from './components/phases/IntroScreen';
@@ -47,6 +48,7 @@ function JourneyBar({ currentPhase, completedPhases }) {
 
 function App() {
   const { phase, advanceTo, PHASES, completedPhases } = usePhase();
+  const [showExitConfirm, setShowExitConfirm] = React.useState(false);
 
   const isIntro = phase === PHASES.INTRO;
 
@@ -72,10 +74,24 @@ function App() {
 
         {/* Home button (hidden on intro) */}
         {!isIntro && (
-          <button className="home-btn" onClick={() => advanceTo(PHASES.INTRO)}>
+          <button className="home-btn" onClick={() => setShowExitConfirm(true)}>
             🏠 Home
           </button>
         )}
+
+        <Popup 
+          isOpen={showExitConfirm}
+          type="confirm"
+          title="Exit Journey?"
+          message="Are you sure you want to go back to the home screen? You will lose your current progress."
+          onConfirm={() => {
+            setShowExitConfirm(false);
+            advanceTo(PHASES.INTRO);
+          }}
+          onCancel={() => setShowExitConfirm(false)}
+          confirmText="Yes, Exit"
+          cancelText="Cancel"
+        />
 
         {/* Journey bar (hidden on intro) */}
         {!isIntro && (

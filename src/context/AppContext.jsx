@@ -17,6 +17,12 @@ const initialState = {
   currentQuestionIndex: 0,
   audioEnabled: true,
   completedPhases: [],
+  // New unified design system state
+  xp: 0,
+  badges: [],
+  lives: 3,
+  streakCount: 0,
+  attemptsForCurrent: 0,
 };
 
 const reducer = (state, action) => {
@@ -51,13 +57,28 @@ const reducer = (state, action) => {
     case 'NEXT_QUESTION':
       return {
         ...state,
-        currentQuestionIndex: state.currentQuestionIndex + 1
+        currentQuestionIndex: state.currentQuestionIndex + 1,
+        attemptsForCurrent: 0,
       };
     case 'USE_HINT':
       return {
         ...state,
         hintsRemaining: Math.max(0, state.hintsRemaining - 1)
       };
+    case 'AWARD_XP':
+      return { ...state, xp: state.xp + action.payload };
+    case 'AWARD_BADGE':
+      return { ...state, badges: state.badges.includes(action.payload) ? state.badges : [...state.badges, action.payload] };
+    case 'LOSE_LIFE':
+      return { ...state, lives: Math.max(0, state.lives - 1) };
+    case 'RESET_LIVES':
+      return { ...state, lives: 3 };
+    case 'INCREMENT_STREAK':
+      return { ...state, streakCount: state.streakCount + 1 };
+    case 'RESET_STREAK':
+      return { ...state, streakCount: 0 };
+    case 'INCREMENT_ATTEMPT':
+      return { ...state, attemptsForCurrent: state.attemptsForCurrent + 1 };
     case 'RESET_APP':
       return { ...initialState, audioEnabled: state.audioEnabled };
     default:

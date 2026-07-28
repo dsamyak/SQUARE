@@ -110,6 +110,10 @@ export function playWrongNarration() {
   return options[Math.floor(Math.random() * options.length)];
 }
 
+export function playHintNarration(hintText) {
+  return [think(hintText)];
+}
+
 // ═══════════════════════════════════════════════════
 // Phase: Reflect
 // ═══════════════════════════════════════════════════

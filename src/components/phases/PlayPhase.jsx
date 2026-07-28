@@ -1,72 +1,175 @@
-import React, { useEffect, useContext } from 'react';
-import { AppContext } from '../../context/AppContext';
-import { usePhase } from '../../hooks/usePhase';
+import React, { useState, useEffect } from 'react';
 import { useQuestions } from '../../hooks/useQuestions';
+import { usePhase } from '../../hooks/usePhase';
+import QuestionRenderer from './QuestionRenderer';
+import ProgressBar from '../ui/ProgressBar';
+import FeedbackOverlay from '../ui/FeedbackOverlay';
+import XPToast from '../ui/XPToast';
+import Confetti from '../ui/Confetti';
+import { motion } from 'framer-motion';
+import { narrate, stopNarration } from '../../utils/audio';
+import { playCorrectNarration, playWrongNarration } from '../../utils/narration';
 import { generateSessionQuestions } from '../../utils/questionBank';
-import { motion, AnimatePresence } from 'framer-motion';
-
-function QuestionCard({ question, nextQuestion, answerQuestion, useHint }) {
-  return (
-    <motion.div initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="question-card">
-      <h3 className="question-text">{question.prompt}</h3>
-      {question.options && (
-        <div className="options-grid">
-          {question.options.map(opt => (
-            <button key={opt} className="option-btn" onClick={() => answerQuestion(opt === question.correctAnswer)}>
-              {opt}
-            </button>
-          ))}
-        </div>
-      )}
-      {!question.options && (
-        <div style={{ textAlign: 'center' }}>
-          <button className="option-btn" onClick={() => answerQuestion(true)}>Got it! ({question.correctAnswer})</button>
-        </div>
-      )}
-      <button className="hint-btn" onClick={useHint}>💡 Hint</button>
-    </motion.div>
-  );
-}
 
 export default function PlayPhase() {
+  const { 
+    currentQuestion, 
+    currentQuestionIndex, 
+    sessionQuestions, 
+    score, 
+    hintsRemaining,
+    attemptsForCurrent,
+    lives,
+    streakCount,
+    xp,
+    isFinished,
+    answerQuestion,
+    startPractice,
+    nextQuestion,
+    useHint,
+    awardXp,
+    awardBadge,
+    loseLife,
+    incrementStreak,
+    resetStreak,
+    incrementAttempt
+  } = useQuestions();
+
   const { advance } = usePhase();
-  const { state, dispatch } = useContext(AppContext);
-  const { currentQuestion, isFinished, score, answerQuestion, nextQuestion, useHint } = useQuestions();
+  const [feedback, setFeedback] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [earnedXp, setEarnedXp] = useState(0);
 
+  // Seed questions if not already loaded (e.g. navigated directly to Play phase)
   useEffect(() => {
-    if (!state.sessionQuestions || state.sessionQuestions.length === 0) {
-      dispatch({ type: 'START_PRACTICE', payload: generateSessionQuestions() });
+    if (sessionQuestions.length === 0) {
+      startPractice(generateSessionQuestions(20));
     }
-  }, [dispatch, state.sessionQuestions]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const handleAnswer = (answer) => {
+    if (!currentQuestion) return;
+    stopNarration();
+    const isCorrect = answer === currentQuestion.correctAnswer;
+
+    if (isCorrect) {
+      narrate(playCorrectNarration());
+      setFeedback({ isCorrect: true });
+      answerQuestion(true);
+      incrementStreak();
+
+      const xpGained = streakCount >= 2 ? 20 : 10;
+      setEarnedXp(xpGained);
+      awardXp(xpGained);
+
+      if (streakCount + 1 === 3) {
+        awardBadge('On a Roll! 🔥');
+      }
+
+      setShowConfetti(true);
+
+      setTimeout(() => {
+        setFeedback(null);
+        setShowConfetti(false);
+        nextQuestion();
+      }, 2000);
+    } else {
+      narrate(playWrongNarration());
+      setFeedback({ isCorrect: false });
+      incrementAttempt();
+      resetStreak();
+
+      if (attemptsForCurrent >= 1) {
+        // Second fail → lose life and move on
+        loseLife();
+        answerQuestion(false);
+        setTimeout(() => {
+          setFeedback(null);
+          nextQuestion();
+        }, 2000);
+      } else {
+        setTimeout(() => setFeedback(null), 1500);
+      }
+    }
+  };
+
+  // Finished screen
   if (isFinished) {
     return (
-      <div className="play-screen">
-        <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="score-card">
-          <h2 className="score-title">Play Complete!</h2>
-          <div className="score-value">{score.correct} / {score.total}</div>
-          <button className="btn btn-primary" onClick={advance}>Next: Reflect 📓</button>
-        </motion.div>
+      <motion.div
+        className="play-screen"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        style={{ textAlign: 'center' }}
+      >
+        <Confetti />
+        <div style={{ fontSize: '4rem', marginBottom: '16px' }}>🏆</div>
+        <h2 style={{ marginBottom: '8px' }}>Quiz Complete!</h2>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
+          You scored <strong>{score.correct}</strong> out of <strong>{score.total}</strong>
+        </p>
+        <p style={{ color: 'var(--gold)', fontSize: '1.3rem', marginBottom: '32px' }}>
+          Total XP: {xp} ⭐
+        </p>
+        <button className="btn btn-primary btn-lg" onClick={advance}>
+          Go to Reflection →
+        </button>
+      </motion.div>
+    );
+  }
+
+  // Loading state while questions are seeding
+  if (!currentQuestion) {
+    return (
+      <div className="play-screen" style={{ textAlign: 'center', paddingTop: '80px' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⏳</div>
+        <p style={{ color: 'var(--text-secondary)' }}>Loading questions...</p>
       </div>
     );
   }
 
-  if (!currentQuestion) return null;
-
   return (
     <div className="play-screen">
-      <AnimatePresence mode="wait">
-        <QuestionCard 
-          key={currentQuestion.id} 
-          question={currentQuestion} 
-          nextQuestion={nextQuestion} 
-          answerQuestion={(isCorrect) => {
-            answerQuestion(isCorrect);
-            setTimeout(nextQuestion, 1000);
-          }} 
-          useHint={useHint} 
+      {showConfetti && <Confetti />}
+      {earnedXp > 0 && showConfetti && (
+        <XPToast amount={earnedXp} onComplete={() => setEarnedXp(0)} />
+      )}
+      <FeedbackOverlay isVisible={!!feedback} isCorrect={feedback?.isCorrect} />
+
+      {/* HUD */}
+      <div className="hud">
+        <div className="hud-stat">
+          <span className="hud-icon">❤️</span>
+          <span className="hud-value">{'❤️'.repeat(lives) || '💔'}</span>
+        </div>
+        <div className="hud-stat">
+          <span className="hud-icon">⭐</span>
+          <span className="hud-value">{xp} XP</span>
+        </div>
+        {streakCount >= 2 && (
+          <div className="hud-stat">
+            <span className="hud-icon">🔥</span>
+            <span className="hud-value">{streakCount}x Streak!</span>
+          </div>
+        )}
+      </div>
+
+      <ProgressBar
+        current={currentQuestionIndex + 1}
+        total={sessionQuestions.length}
+        streak={streakCount}
+      />
+
+      <div className="question-container glass-card">
+        <QuestionRenderer
+          question={currentQuestion}
+          onAnswer={handleAnswer}
+          disabled={!!feedback}
+          attempts={attemptsForCurrent}
+          hintsRemaining={hintsRemaining}
+          onUseHint={useHint}
         />
-      </AnimatePresence>
+      </div>
     </div>
   );
 }
